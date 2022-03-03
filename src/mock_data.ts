@@ -19,26 +19,16 @@ const generateBookTitle = (): string => {
   return title;
 };
 
-const genreTypes = ["fiction", "non-fiction"];
-
-const genreCategories = [
-  "children's",
+const fictionCategories = [
   "classic",
+  "children's",
   "coming of age",
-  "epic",
   "folklore",
+  "epic",
   "parable",
   "legend",
   "fairy tale",
-  "historical",
-  "philosphical",
-  "religious",
   "consipiracy",
-  "legal",
-  "financial",
-  "political",
-  "financial",
-  "physcology",
   "romance",
   "espionage",
   "comedy",
@@ -48,6 +38,17 @@ const genreCategories = [
   "science fiction",
   "fantasy",
   "horror",
+];
+
+const nonFictionCategories = [
+  "historical",
+  "philosphical",
+  "religious",
+  "legal",
+  "financial",
+  "political",
+  "financial",
+  "physcology",
 ];
 
 const randomLanguage = () =>
@@ -63,7 +64,8 @@ const randomLanguage = () =>
 const randomPublicationDate = () =>
   faker.date.between("1700-01-01", "2022-01-01");
 
-const bookFormat = () => faker.random.arrayElement(["paper-back", "hard-cover"]);
+const bookFormat = () =>
+  faker.random.arrayElement(["paper-back", "hard-cover"]);
 
 const randomBookEdition = () =>
   faker.random.arrayElement([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
@@ -93,12 +95,21 @@ const generateAuthors = (count: number) => {
 export const authors = generateAuthors(100);
 
 const generateGenres = () => {
-  return genreCategories.map((category) => ({
+  const fictionGenres = fictionCategories.map((category) => ({
     id: uuidv4(),
-    category: category,
-    type: faker.random.arrayElement(genreTypes),
+    category,
+    type: "fiction",
     created_at: now,
   }));
+
+  const nonFictionGenres = nonFictionCategories.map((category) => ({
+    id: uuidv4(),
+    category,
+    type: "non-fiction",
+    created_at: now,
+  }));
+
+  return [...fictionGenres, ...nonFictionGenres];
 };
 
 export const genres = generateGenres();

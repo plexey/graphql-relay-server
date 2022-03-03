@@ -1,3 +1,4 @@
+import { ConnectionArguments, cursorToOffset, offsetToCursor } from "graphql-relay";
 import { pool } from "./pool";
 import { selectResource } from "./sql/select";
 import { ResourceType } from "./types";
@@ -43,4 +44,46 @@ export const fetchResource = async (type: string, id: string) => {
   const tableName = resourceTypeToTableName(type as ResourceType);
   const result = await selectResource(tableName, id);
   return result;
+};
+
+export const connectionFromArray = (data: any[], args: ConnectionArguments) => {
+  const { first, last, before, after } = args;
+
+  const limit =
+    typeof first === "number" ? first : typeof last === "number" ? last : 0;
+
+  const offset = after
+    ? cursorToOffset(after)
+    : before
+    ? cursorToOffset(before)
+    : 0;
+
+  const authors = data.slice(0, limit);
+
+  const edges = authors.map((author, index) => {
+    const cursor = offsetToCursor(offset + (index + 1));
+
+    return {
+      cursor,
+      node: author,
+    };
+  });
+
+  const hasNextPage = data.length > authors.length;
+  const hasPreviousPage = offset > 0;
+
+  const startCursor = edges[0].cursor;
+  const endCursor = edges[edges.length - 1].cursor;
+
+  const pageInfo = {
+    startCursor,
+    endCursor,
+    hasNextPage,
+    hasPreviousPage,
+  };
+
+  return {
+    edges,
+    pageInfo,
+  };
 };

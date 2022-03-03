@@ -47,7 +47,6 @@ export const insertBooks = async () => {
   try {
     await client.query("BEGIN");
     const genreQueries = books.map((book) => {
-      console.log(book.publication_date)
       return client.query(
         "INSERT INTO books (id, title, author_id, genre_id, format, publication_date, edition, pages, language, created_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, to_timestamp($10))",
         [

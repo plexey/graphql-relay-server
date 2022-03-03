@@ -14,34 +14,27 @@ import {
   fromGlobalId,
   connectionDefinitions,
   connectionArgs,
-  connectionFromArray,
 } from "graphql-relay";
 import { fetchResource } from "./utils";
-import { authors, genres } from "./mock_data";
 import {
-  selectBookPlusMetaData,
-  selectBooksByGenre,
-  selectBooksPlusMetaData,
-} from "./sql/select";
-
-import DataLoader from "dataloader"
+  authorsLoader,
+  booksByAuthorLoader,
+  booksByGenreLoader,
+  booksLoader,
+  genresLoader,
+} from "./dataloaders";
+import authorsResolver from "./resolvers/authors";
+import booksResolver from "./resolvers/books";
+import genresResolver from "./resolvers/genres";
 
 const { nodeInterface, nodeField } = nodeDefinitions(
   async (globalId) => {
-    console.log({ globalId });
     const { type, id } = fromGlobalId(globalId);
 
-    if (type !== "Book") {
-      const data = await fetchResource(type, id);
-      if (!data) return null;
-      return { type, ...data };
-    }
+    const data = await fetchResource(type, id);
+    if (!data) return null;
 
-    const book = await selectBookPlusMetaData(id);
-    console.log({ book });
-    if (!book) return null;
-    
-    return { type, ...book };
+    return { type, ...data };
   },
   (obj: any): any => {
     switch (obj.type) {
@@ -57,6 +50,55 @@ const { nodeInterface, nodeField } = nodeDefinitions(
   }
 );
 
+const bookGenreType = new GraphQLObjectType({
+  name: "BookGenre",
+  fields: () => ({
+    id: globalIdField("Genre"),
+    category: { type: new GraphQLNonNull(GraphQLString) },
+    type: { type: new GraphQLNonNull(GraphQLString) },
+    created_at: { type: new GraphQLNonNull(GraphQLString) },
+  }),
+  interfaces: [nodeInterface],
+});
+
+const genreType = new GraphQLObjectType({
+  name: "Genre",
+  fields: () => ({
+    id: globalIdField("Genre"),
+    category: { type: new GraphQLNonNull(GraphQLString) },
+    type: { type: new GraphQLNonNull(GraphQLString) },
+    created_at: { type: new GraphQLNonNull(GraphQLString) },
+    books: {
+      type: new GraphQLList(bookType),
+      resolve(source: any, _args: any, context: any) {
+        return context.loaders.booksByGenreLoader.load(source.id);
+      },
+    },
+  }),
+  interfaces: [nodeInterface],
+});
+
+const authorBookType = new GraphQLObjectType({
+  name: "AuthorBook",
+  fields: {
+    id: globalIdField("Book"),
+    title: { type: new GraphQLNonNull(GraphQLString) },
+    format: { type: new GraphQLNonNull(GraphQLString) },
+    publication_date: { type: new GraphQLNonNull(GraphQLString) },
+    edition: { type: new GraphQLNonNull(GraphQLInt) },
+    pages: { type: new GraphQLNonNull(GraphQLInt) },
+    created_at: { type: new GraphQLNonNull(GraphQLString) },
+    languages: { type: new GraphQLNonNull(GraphQLString) },
+    genre: {
+      type: bookGenreType,
+      resolve(source: any, _args: any, context: any) {
+        return context.loaders.genresLoader.load(source.genre_id);
+      },
+    },
+  },
+  interfaces: [nodeInterface],
+});
+
 const authorType = new GraphQLObjectType({
   name: "Author",
   fields: {
@@ -67,6 +109,12 @@ const authorType = new GraphQLObjectType({
       type: new GraphQLNonNull(GraphQLString),
       resolve(obj) {
         return obj.first_name + " " + obj.last_name;
+      },
+    },
+    books: {
+      type: new GraphQLList(authorBookType),
+      resolve(source: any, _args: any, context: any) {
+        return context.loaders.booksByAuthorLoader.load(source.id);
       },
     },
   },
@@ -81,18 +129,14 @@ const bookType = new GraphQLObjectType({
     format: { type: new GraphQLNonNull(GraphQLString) },
     author: {
       type: authorType,
-      resolve(source: any) {
-        return {
-          id: source.id,
-          first_name: source.first_name,
-          last_name: source.last_name,
-        };
+      resolve(source: any, _args: any, context: any) {
+        return context.loaders.authorsLoader.load(source.author_id);
       },
     },
     genre: {
-      type: new GraphQLNonNull(GraphQLString),
-      resolve: async (source: any) => {
-        return source.category;
+      type: bookGenreType,
+      resolve(source: any, _args: any, context: any) {
+        return context.loaders.genresLoader.load(source.genre_id);
       },
     },
     publication_date: { type: new GraphQLNonNull(GraphQLString) },
@@ -109,23 +153,14 @@ var { connectionType: BookConnection } = connectionDefinitions({
   nodeType: bookType,
 });
 
-const genreType = new GraphQLObjectType({
+var { connectionType: GenreConnection } = connectionDefinitions({
   name: "Genre",
-  fields: () => ({
-    id: globalIdField("Genre"),
-    category: { type: new GraphQLNonNull(GraphQLString) },
-    type: { type: new GraphQLNonNull(GraphQLString) },
-    created_at: { type: new GraphQLNonNull(GraphQLString) },
-    books: {
-      type: BookConnection,
-      args: connectionArgs,
-      resolve: async ({ id: genre_id }, args) => {
-        const books = await selectBooksByGenre(genre_id);
-        return connectionFromArray(books, args);
-      },
-    },
-  }),
-  interfaces: [nodeInterface],
+  nodeType: genreType,
+});
+
+var { connectionType: AuthorConnection } = connectionDefinitions({
+  name: "Author",
+  nodeType: authorType,
 });
 
 const schema: GraphQLSchema = new GraphQLSchema({
@@ -134,24 +169,19 @@ const schema: GraphQLSchema = new GraphQLSchema({
     description: "query root",
     fields: {
       authors: {
-        type: new GraphQLList(authorType),
-        resolve() {
-          return authors;
-        },
+        type: AuthorConnection,
+        args: connectionArgs,
+        resolve: authorsResolver,
       },
       books: {
         type: BookConnection,
         args: connectionArgs,
-        resolve: async (_source, args: any) => {
-          const books = await selectBooksPlusMetaData();
-          return connectionFromArray(books, args);
-        },
+        resolve: booksResolver,
       },
       genres: {
-        type: new GraphQLList(genreType),
-        resolve() {
-          return genres;
-        },
+        type: GenreConnection,
+        args: connectionArgs,
+        resolve: genresResolver,
       },
       node: nodeField,
     },
@@ -165,6 +195,15 @@ app.use(
     schema: schema,
     // rootValue: root,
     graphiql: true,
+    context: {
+      loaders: {
+        booksLoader,
+        authorsLoader,
+        genresLoader,
+        booksByGenreLoader,
+        booksByAuthorLoader: booksByAuthorLoader,
+      },
+    },
   })
 );
 

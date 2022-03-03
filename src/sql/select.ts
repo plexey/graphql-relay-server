@@ -1,59 +1,11 @@
 import { pool } from "../pool";
 
-export const selectBooks = async () => {
-  const res = await pool.query("select * from books");
-  return res.rows;
-};
+const DEFAULT_PAGE_LIMIT = 100;
 
-export const selectBooksPlusMetaData = async () => {
-  const res = await pool.query(`
-  select
-    books.id,
-    books.title,
-    books.format,
-    books.publication_date,
-    books.edition,
-    books.edition,
-    books.pages,
-    books.language,
-    books.author_id,
-    authors.first_name,
-    authors.last_name,
-    books.genre_id,
-    genres.type,
-    genres.category
-  from
-    books
-    inner join genres on books.genre_id = genres.id
-    inner join authors on books.author_id = authors.id
-`);
-  return res.rows;
-};
-
-export const selectBookPlusMetaData = async (book_id: string) => {
-  const res = await pool.query(`
-  select
-    books.id,
-    books.title,
-    books.format,
-    books.publication_date,
-    books.edition,
-    books.edition,
-    books.pages,
-    books.language,
-    books.author_id,
-    authors.first_name,
-    authors.last_name,
-    books.genre_id,
-    genres.type,
-    genres.category
-  from
-    books
-    inner join genres on books.genre_id = genres.id
-    inner join authors on books.author_id = authors.id
-  where books.id=$1
-`, [book_id]);
-  return res.rows[0];
+type Pagination = {
+  order: "desc" | "asc";
+  offset?: number | null;
+  limit?: number | null;
 };
 
 export const selectBooksByAuthor = async (author_id: string) => {
@@ -73,13 +25,33 @@ export const selectBooksByGenre = async (genre_id: string) => {
   return res.rows;
 };
 
-export const selectAuthors = async () => {
-  const res = await pool.query("select * from authors");
+export const selectAuthors = async ({
+  order = "asc",
+  offset = 0,
+  limit = DEFAULT_PAGE_LIMIT,
+}: Pagination) => {
+  const queryText = `select * from authors order by last_name ${order} limit ${limit} offset ${offset}`;
+  const res = await pool.query(queryText);
   return res.rows;
 };
 
-export const selectGenres = async () => {
-  const res = await pool.query("select * from genres");
+export const selectBooks = async ({
+  order = "asc",
+  offset = 0,
+  limit = DEFAULT_PAGE_LIMIT,
+}: Pagination) => {
+  const queryText = `select * from books order by title ${order} limit ${limit} offset ${offset}`;
+  const res = await pool.query(queryText);
+  return res.rows;
+};
+
+export const selectGenres = async ({
+  order = "asc",
+  offset = 0,
+  limit = DEFAULT_PAGE_LIMIT,
+}: Pagination) => {
+  const queryText = `select * from genres order by category ${order} limit ${limit} offset ${offset}`;
+  const res = await pool.query(queryText);
   return res.rows;
 };
 
@@ -88,8 +60,7 @@ export const selectResource = async (
   rowId: string
 ) => {
   const res = await pool.query(`select * from ${tableName} where id=$1`, [
-    rowId
-  ])
-  console.log(res)
-  return res.rows[0]
+    rowId,
+  ]);
+  return res.rows[0];
 };
