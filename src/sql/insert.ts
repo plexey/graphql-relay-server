@@ -1,4 +1,11 @@
-import { authors, books, genres } from "../mock_data";
+import {
+  authors,
+  bookAuthors,
+  bookGenres,
+  books,
+  genres,
+  users,
+} from "../mock/dbData";
 import { pool } from "../pool";
 
 export const insertGenres = async () => {
@@ -48,12 +55,10 @@ export const insertBooks = async () => {
     await client.query("BEGIN");
     const genreQueries = books.map((book) => {
       return client.query(
-        "INSERT INTO books (id, title, author_id, genre_id, format, publication_date, edition, pages, language, created_at) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, to_timestamp($10))",
+        "INSERT INTO books (id, title, format, publication_date, edition, pages, language, created_at) values ($1, $2, $3, $4, $5, $6, $7, to_timestamp($8))",
         [
           book.id,
           book.title,
-          book.author_id,
-          book.genre_id,
           book.format,
           book.publication_date,
           book.edition,
@@ -67,6 +72,102 @@ export const insertBooks = async () => {
     await client.query("COMMIT");
   } catch (e) {
     await client.query("ROLLBACK");
+    throw e;
+  } finally {
+    client.release();
+  }
+};
+
+export const insertUsers = async () => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const genreQueries = users.map((user) => {
+      return client.query(
+        "INSERT INTO users (id, first_name, last_name, email, password_hash, created_at) values ($1, $2, $3, $4, $5, to_timestamp($6))",
+        [
+          user.id,
+          user.first_name,
+          user.last_name,
+          user.email,
+          user.password_hash,
+          user.created_at,
+        ]
+      );
+    });
+    await Promise.all(genreQueries);
+    await client.query("COMMIT");
+  } catch (e) {
+    await client.query("ROLLBACK");
+    console.log(e);
+    throw e;
+  } finally {
+    client.release();
+  }
+};
+
+export const insertUser = async (user: any) => {
+  const result = await pool.query(
+    "INSERT INTO users (id, first_name, last_name, email, password_hash, created_at) values ($1, $2, $3, $4, $5, to_timestamp($6))",
+    [
+      user.id,
+      user.first_name,
+      user.last_name,
+      user.email,
+      user.password_hash,
+      user.created_at,
+    ]
+  );
+  return result;
+};
+
+export const insertBookAuthors = async () => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const genreQueries = bookAuthors.map((bookAuthor) => {
+      return client.query(
+        'INSERT INTO book_authors (id, book_id, author_id, "order", created_at) values ($1, $2, $3, $4, to_timestamp($5))',
+        [
+          bookAuthor.id,
+          bookAuthor.book_id,
+          bookAuthor.author_id,
+          bookAuthor.order,
+          bookAuthor.created_at,
+        ]
+      );
+    });
+    await Promise.all(genreQueries);
+    await client.query("COMMIT");
+  } catch (e) {
+    await client.query("ROLLBACK");
+    console.log(e);
+    throw e;
+  } finally {
+    client.release();
+  }
+};
+
+export const insertBookGenres = async () => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const genreQueries = bookGenres.map((bookGenre) => {
+      return client.query(
+        "INSERT INTO book_genres (id, book_id, genre_id, created_at) values ($1, $2, $3, to_timestamp($4))",
+        [
+          bookGenre.id,
+          bookGenre.book_id,
+          bookGenre.genre_id,
+          bookGenre.created_at,
+        ]
+      );
+    });
+    await Promise.all(genreQueries);
+    await client.query("COMMIT");
+  } catch (e) {
+    await client.query("ROLLBACK");
+    console.log(e);
     throw e;
   } finally {
     client.release();

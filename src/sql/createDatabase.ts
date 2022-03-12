@@ -1,5 +1,12 @@
 import { pool } from "../pool";
-import { insertAuthors, insertBooks, insertGenres } from "./insert";
+import {
+  insertAuthors,
+  insertBookAuthors,
+  insertBookGenres,
+  insertBooks,
+  insertGenres,
+  insertUsers,
+} from "./insert";
 import { readFile } from "fs/promises";
 
 const createTables = async () => {
@@ -17,6 +24,9 @@ const run = async () => {
   await insertGenres();
   await insertAuthors();
   await insertBooks();
+  await insertUsers();
+  await insertBookAuthors();
+  await insertBookGenres();
 };
 
 run().finally(() => {

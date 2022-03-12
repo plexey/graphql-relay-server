@@ -14,18 +14,22 @@ import {
   fromGlobalId,
   connectionDefinitions,
   connectionArgs,
+  ConnectionArguments,
+  connectionFromArray,
 } from "graphql-relay";
 import { fetchResource } from "./utils";
-import {
-  authorsLoader,
-  booksByAuthorLoader,
-  booksByGenreLoader,
-  booksLoader,
-  genresLoader,
-} from "./dataloaders";
+import { loaders } from "./dataloaders";
 import authorsResolver from "./resolvers/authors";
 import booksResolver from "./resolvers/books";
 import genresResolver from "./resolvers/genres";
+import bodyParser from "body-parser";
+import { login, register } from "./routes";
+import { authenticateJWT, verifyJWT } from "./security";
+import cookieParser from "cookie-parser";
+
+type Context = {
+  loaders: typeof loaders;
+};
 
 const { nodeInterface, nodeField } = nodeDefinitions(
   async (globalId) => {
@@ -50,17 +54,6 @@ const { nodeInterface, nodeField } = nodeDefinitions(
   }
 );
 
-const bookGenreType = new GraphQLObjectType({
-  name: "BookGenre",
-  fields: () => ({
-    id: globalIdField("Genre"),
-    category: { type: new GraphQLNonNull(GraphQLString) },
-    type: { type: new GraphQLNonNull(GraphQLString) },
-    created_at: { type: new GraphQLNonNull(GraphQLString) },
-  }),
-  interfaces: [nodeInterface],
-});
-
 const genreType = new GraphQLObjectType({
   name: "Genre",
   fields: () => ({
@@ -69,39 +62,20 @@ const genreType = new GraphQLObjectType({
     type: { type: new GraphQLNonNull(GraphQLString) },
     created_at: { type: new GraphQLNonNull(GraphQLString) },
     books: {
-      type: new GraphQLList(bookType),
-      resolve(source: any, _args: any, context: any) {
-        return context.loaders.booksByGenreLoader.load(source.id);
+      type: BookConnection,
+      resolve: async (source: any, args: any, context: Context) => {
+        const genreId = source.id;
+        const data = await context.loaders.genreBooks.load(genreId);
+        return connectionFromArray(data, args);
       },
     },
   }),
   interfaces: [nodeInterface],
 });
 
-const authorBookType = new GraphQLObjectType({
-  name: "AuthorBook",
-  fields: {
-    id: globalIdField("Book"),
-    title: { type: new GraphQLNonNull(GraphQLString) },
-    format: { type: new GraphQLNonNull(GraphQLString) },
-    publication_date: { type: new GraphQLNonNull(GraphQLString) },
-    edition: { type: new GraphQLNonNull(GraphQLInt) },
-    pages: { type: new GraphQLNonNull(GraphQLInt) },
-    created_at: { type: new GraphQLNonNull(GraphQLString) },
-    languages: { type: new GraphQLNonNull(GraphQLString) },
-    genre: {
-      type: bookGenreType,
-      resolve(source: any, _args: any, context: any) {
-        return context.loaders.genresLoader.load(source.genre_id);
-      },
-    },
-  },
-  interfaces: [nodeInterface],
-});
-
 const authorType = new GraphQLObjectType({
   name: "Author",
-  fields: {
+  fields: () => ({
     id: globalIdField("Author"),
     first_name: { type: new GraphQLNonNull(GraphQLString) },
     last_name: { type: new GraphQLNonNull(GraphQLString) },
@@ -112,31 +86,41 @@ const authorType = new GraphQLObjectType({
       },
     },
     books: {
-      type: new GraphQLList(authorBookType),
-      resolve(source: any, _args: any, context: any) {
-        return context.loaders.booksByAuthorLoader.load(source.id);
+      type: BookConnection,
+      resolve: async (source: any, _args: any, context: any) => {
+        const items = await context.loaders.booksByAuthorLoader.load(source.id);
+        return connectionFromArray(items, _args);
       },
     },
-  },
+  }),
   interfaces: [nodeInterface],
 });
 
 const bookType = new GraphQLObjectType({
   name: "Book",
-  fields: {
+  fields: () => ({
     id: globalIdField("Book"),
     title: { type: new GraphQLNonNull(GraphQLString) },
     format: { type: new GraphQLNonNull(GraphQLString) },
-    author: {
-      type: authorType,
-      resolve(source: any, _args: any, context: any) {
-        return context.loaders.authorsLoader.load(source.author_id);
+    authors: {
+      type: AuthorConnection,
+      args: connectionArgs,
+      resolve: async (
+        source: any,
+        args: ConnectionArguments,
+        context: Context
+      ) => {
+        const bookId = source.id;
+        const bookAuthors = await context.loaders.bookAuthors.load(bookId);
+        return connectionFromArray(bookAuthors, args)
       },
     },
-    genre: {
-      type: bookGenreType,
-      resolve(source: any, _args: any, context: any) {
-        return context.loaders.genresLoader.load(source.genre_id);
+    genres: {
+      type: GenreConnection,
+      resolve: async (source: any, _args: any, context: Context) => {
+        const bookId = source.id
+        const items = await context.loaders.bookGenres.load(bookId)
+        return connectionFromArray(items, _args);
       },
     },
     publication_date: { type: new GraphQLNonNull(GraphQLString) },
@@ -144,7 +128,7 @@ const bookType = new GraphQLObjectType({
     pages: { type: new GraphQLNonNull(GraphQLInt) },
     created_at: { type: new GraphQLNonNull(GraphQLString) },
     languages: { type: new GraphQLNonNull(GraphQLString) },
-  },
+  }),
   interfaces: [nodeInterface],
 });
 
@@ -189,20 +173,23 @@ const schema: GraphQLSchema = new GraphQLSchema({
 });
 
 var app = express();
+
+app.use(bodyParser.json());
+app.use(bodyParser.text());
+app.use(cookieParser());
+
+app.get("/register", register);
+app.get("/login", login);
+
 app.use(
   "/graphql",
+  authenticateJWT,
   graphqlHTTP({
     schema: schema,
     // rootValue: root,
     graphiql: true,
     context: {
-      loaders: {
-        booksLoader,
-        authorsLoader,
-        genresLoader,
-        booksByGenreLoader,
-        booksByAuthorLoader: booksByAuthorLoader,
-      },
+      loaders: loaders,
     },
   })
 );

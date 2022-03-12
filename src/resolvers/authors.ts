@@ -6,8 +6,10 @@ export default async function authorsResolver(
   _source: any,
   args: ConnectionArguments
 ) {
+  console.log("AUTHORS RESOLVER");
   const { first, last, after, before } = args;
   if (first) {
+    console.log("FIRST ____")
     const rows = await selectAuthors({
       offset: after ? cursorToOffset(after) : 0,
       limit: first + 1,

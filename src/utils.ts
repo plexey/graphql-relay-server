@@ -1,7 +1,12 @@
-import { ConnectionArguments, cursorToOffset, offsetToCursor } from "graphql-relay";
+import {
+  ConnectionArguments,
+  cursorToOffset,
+  offsetToCursor,
+} from "graphql-relay";
 import { pool } from "./pool";
 import { selectResource } from "./sql/select";
 import { ResourceType } from "./types";
+import crypto from "crypto";
 
 export const toGlobalId = (type: ResourceType, id: string) => {
   const str = `${type}:${id}`;
@@ -58,9 +63,9 @@ export const connectionFromArray = (data: any[], args: ConnectionArguments) => {
     ? cursorToOffset(before)
     : 0;
 
-  const authors = data.slice(0, limit);
+  const targetData = data.slice(0, limit);
 
-  const edges = authors.map((author, index) => {
+  const edges = targetData.map((author, index) => {
     const cursor = offsetToCursor(offset + (index + 1));
 
     return {
@@ -69,7 +74,7 @@ export const connectionFromArray = (data: any[], args: ConnectionArguments) => {
     };
   });
 
-  const hasNextPage = data.length > authors.length;
+  const hasNextPage = data.length > targetData.length;
   const hasPreviousPage = offset > 0;
 
   const startCursor = edges[0].cursor;
@@ -86,4 +91,10 @@ export const connectionFromArray = (data: any[], args: ConnectionArguments) => {
     edges,
     pageInfo,
   };
+};
+
+export const getHashedPassword = (password: string) => {
+  const sha256 = crypto.createHash("sha256");
+  const hash = sha256.update(password).digest("base64");
+  return hash;
 };

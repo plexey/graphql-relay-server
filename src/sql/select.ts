@@ -64,3 +64,20 @@ export const selectResource = async (
   ]);
   return res.rows[0];
 };
+
+export const getTotalCount = async (tableName: string) => {
+  const res = await pool.query(`
+    SELECT (CASE WHEN c.reltuples < 0 THEN NULL       -- never vacuumed
+                 WHEN c.relpages = 0 THEN float8 '0'  -- empty table
+                 ELSE c.reltuples / c.relpages END
+          * (pg_relation_size(c.oid) / pg_catalog.current_setting('block_size')::int)
+          )::bigint
+    FROM   pg_class c
+    WHERE  c.oid = 'books'::regclass;      -- schema-qualified table here
+    `);
+
+  const row = res.rows[0];
+  const values = Object.values(row);
+  const totalCount = parseInt(values[0] as string);
+  return totalCount;
+};
