@@ -4,14 +4,23 @@ import { v4 as uuidv4 } from "uuid";
 import { pool } from "./pool";
 import { getHashedPassword } from "./utils";
 import { generateJWT } from "./security";
+import { validateRegistrationParams, VALIDATION_ERROR } from "./validation";
 
 import { insertUser } from "./sql/insert";
 
 export const register = async (req: Request, res: Response) => {
   const { email, firstName, lastName, password, confirmPassword } = req.body;
 
-  if (password !== confirmPassword) {
-    res.send("Registration failed, passwords do not match");
+  const validationResponse = validateRegistrationParams(
+    { email, firstName, lastName, password, confirmPassword },
+    res
+  );
+
+  if (validationResponse?.error) {
+    res.status(401).send({
+      message: validationResponse.message,
+      error: validationResponse.error_type,
+    });
     return;
   }
 
@@ -22,7 +31,10 @@ export const register = async (req: Request, res: Response) => {
 
   const duplicateUser = result.rows.find((user) => user.email === email);
   if (duplicateUser) {
-    res.send("Registration failed, user already registered");
+    res.status(401).send({
+      message: "Error: account with that email already exists.",
+      error: VALIDATION_ERROR.EMAIL_ALREADY_REGISTERED,
+    });
     return;
   }
 
