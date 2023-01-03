@@ -25,7 +25,7 @@ export const register = async (req: Request, res: Response) => {
   }
 
   // Check if user with the same email is also registered
-  const result = await pool.query(`select email from users where email=$1`, [
+  const result = await pool.query("select email from users where email=$1", [
     email,
   ]);
 
@@ -51,7 +51,10 @@ export const register = async (req: Request, res: Response) => {
     created_at: Math.round(Date.now() / 1000),
   });
 
-  res.send("Registration complete");
+  res.status(200);
+  res.send({
+    message: "Registration complete.",
+  });
   return;
 };
 
@@ -69,12 +72,12 @@ export const login = async (req: Request, res: Response) => {
   const row = rows[0];
 
   if (!row) {
-    res.status(401).send({ message: "Invalid email"});
+    res.status(401).send({ message: "Invalid email" });
     return;
   }
 
   if (row.password_hash !== hashedPassword) {
-    res.status(401).send({ message: "Invalid password"});
+    res.status(401).send({ message: "Invalid password" });
     return;
   }
 
