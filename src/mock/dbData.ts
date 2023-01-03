@@ -13,20 +13,52 @@ import { getHashedPassword } from "../utils";
 
 const now = Math.round(Date.now() / 1000);
 
-const { adjective, adverb, noun, verb } = faker.word;
+const { adjective, adverb, noun, verb, preposition } = faker.word;
 
-const t1 = () => [adjective(), noun()];
-const t2 = () => [adjective(), adjective(), noun()];
-const t3 = () => [adverb(), verb()];
-const t4 = () => [verb(), adjective(), noun()];
+const customWord = (words: string[]) => {
+  return words[Math.floor(Math.random() * words.length)];
+};
 
-const titleVariants = [t1, t2, t3, t4];
+// const t1 = () => [adjective(), noun()];
+// const t2 = () => [adjective(), adjective(), noun()];
+// const t3 = () => [adverb(), verb()];
+// const t4 = () => [verb(), adjective(), noun()];
+// const t5 = () => [preposition(), adjective(), noun()];
+// const t6 = () => [preposition(), noun()];
+const t7 = () => [
+  customWord(["the", "a", "an", "his", "her", "our", "this", "that"]), // prepositions
+  noun(),
+  customWord([
+    "in",
+    "of",
+    "inside",
+    "around",
+    "above",
+    "below",
+    "within",
+    "without",
+    "outside",
+  ]), // prepositions
+  noun(),
+];
+const t8 = () => [
+  customWord(["the", "a", "an", "his", "her", "our", "this", "that", "their", "my"]), // prepositions
+  adjective(),
+  noun(),
+];
+const t9 = () => [
+  // customWord(["the", "a", "an", "his", "her", "our", "this", "that"]), // prepositions
+  verb(),
+  adverb()
+];
+
+const titleVariants = [t7, t8, t9];
 
 const generateBookTitle = (): string => {
   const variant = faker.random.arrayElement(titleVariants);
   const wordArray = variant();
   const title = wordArray.join(" ");
-  return title[0].toUpperCase() + title.slice(1)
+  return title[0].toUpperCase() + title.slice(1);
 };
 
 const fictionCategories = [
@@ -278,4 +310,4 @@ const generateBookGenres = (): BookGenre[] => {
   return bookGenres;
 };
 
-export const bookGenres = generateBookGenres()
+export const bookGenres = generateBookGenres();
