@@ -216,7 +216,7 @@ const testUser: User = {
   first_name: "User",
   last_name: "Zero",
   email: "user0@booky.net",
-  password_hash: getHashedPassword("thevengabusiscoming"),
+  password_hash: getHashedPassword("thevengabusiscoming!"),
   created_at: now,
 };
 
