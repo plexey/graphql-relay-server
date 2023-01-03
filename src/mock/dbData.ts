@@ -38,7 +38,7 @@ const fictionCategories = [
   "parable",
   "legend",
   "fairy tale",
-  "consipiracy",
+  "conspiracy",
   "romance",
   "espionage",
   "comedy",
@@ -52,20 +52,20 @@ const fictionCategories = [
 
 const nonFictionCategories = [
   "historical",
-  "philosphical",
+  "philosophical",
   "religious",
   "legal",
   "financial",
   "political",
   "financial",
-  "physcology",
+  "psychology",
 ];
 
 const randomLanguage = () =>
   faker.random.arrayElement([
     "english",
     "french",
-    "itialian",
+    "italian",
     "spanish",
     "german",
     "swedish",
