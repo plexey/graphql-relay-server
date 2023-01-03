@@ -7,6 +7,7 @@ import {
   users,
 } from "../mock/dbData";
 import { pool } from "../pool";
+import { User } from "./types";
 
 export const insertGenres = async () => {
   const client = await pool.connect();
@@ -106,7 +107,7 @@ export const insertUsers = async () => {
   }
 };
 
-export const insertUser = async (user: any) => {
+export const insertUser = async (user: User) => {
   const result = await pool.query(
     "INSERT INTO users (id, first_name, last_name, email, password_hash, created_at) values ($1, $2, $3, $4, $5, to_timestamp($6))",
     [
