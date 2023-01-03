@@ -26,7 +26,7 @@ const generateBookTitle = (): string => {
   const variant = faker.random.arrayElement(titleVariants);
   const wordArray = variant();
   const title = wordArray.join(" ");
-  return title;
+  return title[0].toUpperCase() + title.slice(1)
 };
 
 const fictionCategories = [
