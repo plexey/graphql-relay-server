@@ -1,29 +1,28 @@
 import { ConnectionArguments, cursorToOffset } from "graphql-relay";
 import { selectAuthors } from "../sql/select";
-import { connectionFromArray } from "../utils";
+import { connectionFromArray, DEFAULT_LIMIT } from "../utils";
 
 export default async function authorsResolver(
   _source: any,
   args: ConnectionArguments
 ) {
-  console.log("AUTHORS RESOLVER");
   const { first, last, after, before } = args;
-  if (first) {
-    console.log("FIRST ____")
-    const rows = await selectAuthors({
-      offset: after ? cursorToOffset(after) : 0,
-      limit: first + 1,
-      order: "asc",
-    });
 
-    return connectionFromArray(rows, args);
-  } else if (last) {
+  if (last) {
     const rows = await selectAuthors({
       offset: before ? cursorToOffset(before) : 0,
-      limit: last + 1,
+      limit: last ?? DEFAULT_LIMIT,
       order: "desc",
     });
 
     return connectionFromArray(rows, args);
   }
+
+  const rows = await selectAuthors({
+    offset: after ? cursorToOffset(after) : 0,
+    limit: first ?? DEFAULT_LIMIT,
+    order: "asc",
+  });
+
+  return connectionFromArray(rows, args);
 }

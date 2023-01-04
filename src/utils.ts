@@ -3,10 +3,12 @@ import {
   cursorToOffset,
   offsetToCursor,
 } from "graphql-relay";
-import { pool } from "./pool";
+import crypto from "crypto";
+
 import { selectResource } from "./sql/select";
 import { ResourceType } from "./types";
-import crypto from "crypto";
+
+export const DEFAULT_LIMIT = 5;
 
 export const toGlobalId = (type: ResourceType, id: string) => {
   const str = `${type}:${id}`;
@@ -55,7 +57,11 @@ export const connectionFromArray = (data: any[], args: ConnectionArguments) => {
   const { first, last, before, after } = args;
 
   const limit =
-    typeof first === "number" ? first : typeof last === "number" ? last : 0;
+    typeof first === "number"
+      ? first
+      : typeof last === "number"
+      ? last
+      : DEFAULT_LIMIT;
 
   const offset = after
     ? cursorToOffset(after)
@@ -77,8 +83,8 @@ export const connectionFromArray = (data: any[], args: ConnectionArguments) => {
   const hasNextPage = data.length > targetData.length;
   const hasPreviousPage = offset > 0;
 
-  const startCursor = edges[0].cursor;
-  const endCursor = edges[edges.length - 1].cursor;
+  const startCursor = edges[0]?.cursor;
+  const endCursor = edges[edges.length - 1]?.cursor;
 
   const pageInfo = {
     startCursor,
