@@ -30,8 +30,11 @@ export const selectAuthors = async ({
   offset = 0,
   limit = DEFAULT_PAGE_LIMIT,
 }: Pagination) => {
-  const queryText = `select * from authors order by last_name ${order} limit ${limit} offset ${offset}`;
-  const res = await pool.query(queryText);
+  const queryText =
+    order === "asc"
+      ? "select * from authors order by last_name asc limit $1 offset $2"
+      : "select * from authors order by last_name desc limit $1 offset $2";
+  const res = await pool.query(queryText, [limit, offset]);
   return res.rows;
 };
 
@@ -40,8 +43,11 @@ export const selectBooks = async ({
   offset = 0,
   limit = DEFAULT_PAGE_LIMIT,
 }: Pagination) => {
-  const queryText = `select * from books order by title ${order} limit ${limit} offset ${offset}`;
-  const res = await pool.query(queryText);
+  const queryText =
+    order === "asc"
+      ? "select * from books order by title asc limit $1 offset $2"
+      : "select * from books order by title desc limit $1 offset $2";
+  const res = await pool.query(queryText, [limit, offset]);
   return res.rows;
 };
 
@@ -50,8 +56,12 @@ export const selectGenres = async ({
   offset = 0,
   limit = DEFAULT_PAGE_LIMIT,
 }: Pagination) => {
-  const queryText = `select * from genres order by category ${order} limit ${limit} offset ${offset}`;
-  const res = await pool.query(queryText);
+  const queryText =
+    order === "asc"
+      ? "select * from genres order by category asc limit $1 offset $2"
+      : "select * from genres order by category desc limit $1 offset $2";
+
+  const res = await pool.query(queryText, [limit, offset]);
   return res.rows;
 };
 
