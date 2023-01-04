@@ -16,8 +16,6 @@ To run this project and begin querying the schema we'll first need to setup the 
 
 This project relies on a PostgreSQL database running via Docker to store data.
 
-Le
-
 [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
 
 With Docker installed,  install the postgres Docker image with this command:
@@ -31,6 +29,16 @@ Once that's done, clone this project and install the dependencies with:
 ```bash
 npm install
 ```
+
+Next let's create a new `.env` file in the project root with the following contents:
+
+```
+POSTGRES_USER=root
+POSTGRES_PASSWORD=example_password
+POSTGRES_DB=athenaeum
+```
+
+You can use the `.env-example` file as a reference point.
 
 We can start a new postgres Docker from within the project by running:
 

@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 import { pool } from "../pool";
 import { readFile } from "fs/promises";
 
