@@ -66,8 +66,6 @@ const validateName = (
     };
   }
 
-  console.log({ name });
-
   if (
     typeof name !== "string" ||
     name.length > MAX_NAME_LENGTH ||
