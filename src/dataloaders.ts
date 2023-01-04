@@ -55,7 +55,6 @@ export const authorBooksLoader = new DataLoader((authorIds) => {
 	    book_authors.author_id,
 	    books.id as "book_id",
 	    books.title,
-	    books.genre_id,
 	    books.format,
 	    books.publication_date,
 	    books.edition,
