@@ -1,20 +1,26 @@
 # GraphQL Relay Server
 
-This is a demo API featuring a Relay GraphQL server
+This project features a demonstrative implementation of a Relay GraphQL server running on an Express server.
 
-## Overview
-
-This project features a Relay GraphQL API running in an Express server. 
-
-The GraphQL schema models a book store with the underlying book store data being resolved from a PostgreSQL database.
+The GraphQL schema models a book store with the underlying data resolved from a PostgreSQL database.
 
 # Setup
 
-To run this project, you'll first need to install Docker so you can run the postgres Docker container:
+This project consists of the following stack:
+
+- Relay GraphQL server
+- Express Server
+- PostgreSQL database
+
+To run this project and begin querying the schema we'll first need to setup the database and then spin up the Express server.
+
+This project relies on a PostgreSQL database running via Docker to store data.
+
+Le
 
 [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
 
-With Docker installed you can now install the postgres Docker image:
+With Docker installed,  install the postgres Docker image with this command:
 
 ```bash
 docker pull postgres
@@ -36,15 +42,15 @@ This command runs a bash script with the following contents:
 
 ```bash
 sudo docker run -d \
-  --name booky \
+  --name athenaeum \
   -p 5432:5432 \
   -e POSTGRES_USER=root \
   -e POSTGRES_PASSWORD=mysecretpassword \
-  -e POSTGRES_DB=booky \
+  -e POSTGRES_DB=athenaeum \
   postgres
 ```
 
-This command spins up a postgres Docker image with a few pre-configured environment variables.
+This command spins up a new postgres Docker image with a few pre-configured environment variables.
 
 Now that the postgres Docker container is up and running, let's populate it with some data by running the following command:
 
@@ -55,23 +61,23 @@ npm run db:create-tables
 This will create the following empty tables in the postgres database:
 
 - `users`
-- `book_genres`
-- `book_authors`
 - `books`
 - `authors`
 - `genres`
+- `book_authors`
+- `book_genres`
 - `book_format`
 - `genre_type`
 
-With the tables created, let's populate them with some data using the following script:
+With the db tables created, let's populate them with some data with the following script:
 
 ```bash
 npm run db:populate-tables
 ```
 
-This script will generate and insert mock data into each table.
+This script will generate and insert some mock data into each table.
 
-With the postgres database now setup and ready to go, we can traverse this data via the Relay GraphQL API provided in this project.
+Now that the postgres database is setup and populated with some data, we can start traversing this data via the Relay GraphQL API provided by this project.
 
 To run the GraphQL API, run the following script:
 
@@ -79,28 +85,50 @@ To run the GraphQL API, run the following script:
 npm run start
 ```
 
-This script spins up an Express server with three REST endpoints:
+This script spins up an Express server exposing three REST endpoints:
 - `/register` - endpoint to register new user account
 - `/login` - endpoint to login as particular user
 - `/graphql` - endpoint to send GraphQL queries to
 
-To use the `/graphql` endpoint we first need to obtain a [JWT](https://jwt.io/) - the Express server expects a JWT to be passed along in each request to `/graphql`.
+To use the `/graphql` endpoint we first need to login to the system as a particular user as the `/graphql` endpoint expects a [JWT](https://jwt.io/) token to be passed along with every request. 
 
-To obtain this JWT we can create a new user account via the `/register` endpoint. To do this, jump into your preferred REST client and hit the endpoints as needed. I'm using [Insomnia](https://insomnia.rest/) these days and highly recommend it!
+We can obtain a JWT by making a POST request to the `/login` endpoint, but first we'll need to register a new user account via the `/register` endpoint.
 
-The `/register` endpoint expects the following fields:
+### `/register`
 
-| **Field**             | **Type**     | **Required** |
-|-------------------|----------|----------|
-| `email`           | `string` | `true`   |
-| `firstName`       | `string` | `true`   |
-| `lastName`        | `string` | `true`   |
-| `password`        | `string` | `true`   |
-| `confirmPassword` | `string` | `true`   |
+The `/register` endpoint is used to register a new user account.
 
-Once you've successfully created a new user account, you can then login as that user via the `/login` endpoint.
+Method: `POST`
 
-The `/login` endpoint expects the following fields:
+Expected HTTP headers:
+
+| Content-Type  | `'application/json'`       |
+|---------------|----------------------------|
+
+Expected arguments:
+
+| **Field**         | **Type** | **Required**   |
+|-------------------|----------|----------------|
+| `email`           | `string` | `true`         |
+| `firstName`       | `string` | `true`         |
+| `lastName`        | `string` | `true`         |
+| `password`        | `string` | `true`         |
+| `confirmPassword` | `string` | `true`         |
+
+Once a new user account has been created via `/register`, we can then login as that user via the `/login` endpoint.
+
+### `/login`
+
+The `/login` endpoint is used to login with a set of user credentials and responds with a JWT on success.
+
+Method: `POST`
+
+Expected HTTP headers:
+
+| Content-Type  | `'application/json'`       |
+|---------------|----------------------------|
+
+Expected Arguments:
 
 | **Field**      | **Type**     | **Required** |
 |------------|----------|----------|
@@ -108,14 +136,23 @@ The `/login` endpoint expects the following fields:
 | `password` | `string` | `true`   |
 
 
-The `/login` endpoint will respond with a JWT on a successful login. Grab this token and pass it along as an HTTP Authorization header. For example, the header would follow this pattern:
+Once a JWT has been obtained via the `/login` endpoint, the JWT can be passed along as an HTTP Authorization header on `/graphql` requests.
 
-| **key**       | **value**                |
-|---------------|--------------------------|
-| Authorization | Bearer `INSERT_JWT_HERE` |
+### `/graphql` 
 
-Now that we've setup the JWT authorization header, we can send along a GraphQL request to the `/graphql` endpoint to begin traversing the schema.
+The `/graphql` endpoint accepts GraphQL requests. 
 
+Method: `POST`
+
+Expected HTTP Headers:
+
+| Content-Type  | `'application/json'`       |
+|---------------|----------------------------|
+| Authorization | `'Bearer xxx.xxx.xxx'`     |
+
+The JWT token we obtained earlier must be included in requests to `/graphql` as an Authorization HTTP header.
+
+Now we're in business!
 
 
 
