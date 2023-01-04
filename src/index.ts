@@ -88,7 +88,7 @@ const authorType = new GraphQLObjectType({
     books: {
       type: BookConnection,
       resolve: async (source: any, _args: any, context: any) => {
-        const items = await context.loaders.booksByAuthorLoader.load(source.id);
+        const items = await context.loaders.authorBooks.load(source.id);
         return connectionFromArray(items, _args);
       },
     },
