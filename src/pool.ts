@@ -5,7 +5,7 @@ export const pool = new Pool({
   host: "localhost",
   user: "root",
   password: "mysecretpassword",
-  database: "booky",
+  database: "athenaeum",
   max: 25,
   idleTimeoutMillis: 1000,
 });

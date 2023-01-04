@@ -32,7 +32,7 @@ export const generateJWT = (email: string): string => {
   const now = Date.now();
 
   const payload = {
-    iss: "booky", // issuer
+    iss: "athenaeum", // issuer
     iat: now, // issued at
     exp: now + HOUR * 6, // expiry
     context: {
@@ -70,7 +70,7 @@ export const verifyJWT = (jwt: string) => {
   const parsedPayload = JSON.parse(decodedPayload);
 
   // check if correct issuer
-  if (parsedPayload.iss !== "booky") {
+  if (parsedPayload.iss !== "athenaeum") {
     return false;
   }
 

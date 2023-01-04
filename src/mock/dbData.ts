@@ -215,7 +215,7 @@ const testUser: User = {
   id: uuidv4(),
   first_name: "User",
   last_name: "Zero",
-  email: "user0@booky.net",
+  email: "user0@athenaeum.net",
   password_hash: getHashedPassword("thevengabusiscoming!"),
   created_at: now,
 };

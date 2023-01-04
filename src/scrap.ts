@@ -1,6 +1,6 @@
 import { Sequelize, DataTypes } from "sequelize";
 
-const sequelize = new Sequelize("booky", "root", "mysecretpassword", {
+const sequelize = new Sequelize("athenaeum", "root", "mysecretpassword", {
   host: "localhost",
   dialect: "postgres",
 });
