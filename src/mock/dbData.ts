@@ -1,4 +1,5 @@
 import faker from "@faker-js/faker";
+import chalk from "chalk";
 import { v4 as uuidv4 } from "uuid";
 import {
   Author,
@@ -42,14 +43,25 @@ const t7 = () => [
   noun(),
 ];
 const t8 = () => [
-  customWord(["the", "a", "an", "his", "her", "our", "this", "that", "their", "my"]), // prepositions
+  customWord([
+    "the",
+    "a",
+    "an",
+    "his",
+    "her",
+    "our",
+    "this",
+    "that",
+    "their",
+    "my",
+  ]), // prepositions
   adjective(),
   noun(),
 ];
 const t9 = () => [
   // customWord(["the", "a", "an", "his", "her", "our", "this", "that"]), // prepositions
   verb(),
-  adverb()
+  adverb(),
 ];
 
 const titleVariants = [t7, t8, t9];
@@ -125,6 +137,7 @@ const generateAuthor = (): Author => {
 };
 
 const generateAuthors = (count: number): Author[] => {
+  console.log(chalk.blue("> generating authors"));
   let i = 0;
   const authors = [];
   while (i < count) {
@@ -137,6 +150,7 @@ const generateAuthors = (count: number): Author[] => {
 export const authors = generateAuthors(100);
 
 const generateGenres = (): Genre[] => {
+  console.log(chalk.blue("> generating genres"));
   const fictionGenres: Genre[] = fictionCategories.map((category) => ({
     id: uuidv4(),
     category,
@@ -173,6 +187,7 @@ const generateBook = (): Book => {
 };
 
 const generateBooks = (count: number): Book[] => {
+  console.log(chalk.blue("> generating books"));
   let i = 0;
   const books = [];
   while (i < count) {
@@ -202,6 +217,7 @@ const generateUser = (): User => {
 };
 
 const generateUsers = (count: number): User[] => {
+  console.log(chalk.blue("> generating users"));
   let i = 0;
   const users = [];
   while (i < count) {
@@ -240,6 +256,7 @@ const randValueInRange = (min: number, max: number) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
 
 const generateBookAuthors = () => {
+  console.log(chalk.blue("> generating book authors"));
   const bookAuthors: BookAuthor[] = [];
 
   books.forEach((book) => {
@@ -287,6 +304,7 @@ const generateBookGenre = (bookId: string, genreId: string): BookGenre => {
 };
 
 const generateBookGenres = (): BookGenre[] => {
+  console.log(chalk.blue("> generating book genres"));
   const bookGenres: BookGenre[] = [];
 
   books.forEach((book) => {

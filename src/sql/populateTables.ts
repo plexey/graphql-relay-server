@@ -1,5 +1,7 @@
-require('dotenv').config();
+require("dotenv").config();
 
+import chalk from "chalk";
+console.log(chalk.cyan("==> POPULATING TABLES") + " 📚");
 import {
   insertAuthors,
   insertBookAuthors,
@@ -9,8 +11,8 @@ import {
   insertUsers,
 } from "./insert";
 
+
 const run = async () => {
-  console.log("==> Populating tables...");
 
   await insertGenres();
   await insertAuthors();
@@ -21,6 +23,6 @@ const run = async () => {
 };
 
 run().finally(() => {
-  console.log("Done!");
+  console.log(chalk.green("==> DONE ") + "✅");
   // process.exit(0);
 });
