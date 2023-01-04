@@ -46,19 +46,7 @@ We can start a new postgres Docker from within the project by running:
 npm run db:start
 ```
 
-This command runs a bash script with the following contents:
-
-```bash
-sudo docker run -d \
-  --name athenaeum \
-  -p 5432:5432 \
-  -e POSTGRES_USER=root \
-  -e POSTGRES_PASSWORD=mysecretpassword \
-  -e POSTGRES_DB=athenaeum \
-  postgres
-```
-
-This command spins up a new postgres Docker image with a few pre-configured environment variables.
+This command spins up a new postgres Docker image with some pre-configured environment variables read from the `.env` file.
 
 Now that the postgres Docker container is up and running, let's populate it with some data by running the following command:
 
@@ -77,15 +65,17 @@ This will create the following empty tables in the postgres database:
 - `book_format`
 - `genre_type`
 
-With the db tables created, let's populate them with some data with the following script:
+This project includes mocking utilities to help populate the tables with some data.
+
+These utilities can be viewed under `src/mock/dbData.ts`.
+
+Run the following script to populate the tables with mock data:
 
 ```bash
 npm run db:populate-tables
 ```
 
-This script will generate and insert some mock data into each table.
-
-Now that the postgres database is setup and populated with some data, we can start traversing this data via the Relay GraphQL API provided by this project.
+Now that the postgres database is setup and populated with some data, we can traverse this data via the Relay GraphQL API provided by this project.
 
 To run the GraphQL API, run the following script:
 
@@ -98,9 +88,9 @@ This script spins up an Express server exposing three REST endpoints:
 - `/login` - endpoint to login as particular user
 - `/graphql` - endpoint to send GraphQL queries to
 
-To use the `/graphql` endpoint we first need to login to the system as a particular user as the `/graphql` endpoint expects a [JWT](https://jwt.io/) token to be passed along with every request. 
+To use the `/graphql` endpoint we first need to login to the system as one of its users. The `/graphql` endpoint expects a [JWT](https://jwt.io/) token to be passed along with every request, and this JWT is obtained when logging in via `/login`.
 
-We can obtain a JWT by making a POST request to the `/login` endpoint, but first we'll need to register a new user account via the `/register` endpoint.
+Before we can obtain a JWT, we'll need to register a new user account via the `/register` endpoint.
 
 ### `/register`
 
