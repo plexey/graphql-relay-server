@@ -2,6 +2,7 @@ require('dotenv').config();
 
 import { pool } from "../pool";
 import { readFile } from "fs/promises";
+import chalk from "chalk";
 
 const createTables = async () => {
   try {
@@ -14,11 +15,11 @@ const createTables = async () => {
 };
 
 const run = async () => {
-  console.log('==> Creating tables...')
+  console.log(chalk.cyan('==> INITIALIZING TABLES') + " 🔨")
   await createTables();
 };
 
 run().finally(() => {
-  console.log("==> Done!");
+  console.log(chalk.green("==> DONE ") +"✅");
   // process.exit(0);
 });
