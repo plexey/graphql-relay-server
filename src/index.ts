@@ -58,6 +58,7 @@ const { nodeInterface, nodeField } = nodeDefinitions(
 
 const genreType = new GraphQLObjectType({
   name: "Genre",
+  description: "Genre of a book.",
   fields: () => ({
     id: globalIdField("Genre"),
     category: { type: new GraphQLNonNull(GraphQLString) },
@@ -65,6 +66,7 @@ const genreType = new GraphQLObjectType({
     created_at: { type: new GraphQLNonNull(GraphQLString) },
     books: {
       type: BookConnection,
+      description: "Books associated with genre",
       resolve: async (source: any, args: any, context: Context) => {
         const genreId = source.id;
         const data = await context.loaders.genreBooks.load(genreId);
@@ -77,18 +79,27 @@ const genreType = new GraphQLObjectType({
 
 const authorType = new GraphQLObjectType({
   name: "Author",
+  description: "Author of a book.",
   fields: () => ({
     id: globalIdField("Author"),
-    first_name: { type: new GraphQLNonNull(GraphQLString) },
-    last_name: { type: new GraphQLNonNull(GraphQLString) },
+    first_name: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: "First name of author",
+    },
+    last_name: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: "Last name of author",
+    },
     full_name: {
       type: new GraphQLNonNull(GraphQLString),
+      description: "Full name of author",
       resolve(obj) {
         return obj.first_name + " " + obj.last_name;
       },
     },
     books: {
       type: BookConnection,
+      description: "Books associated with author",
       resolve: async (source: any, _args: any, context: any) => {
         const items = await context.loaders.authorBooks.load(source.id);
         return connectionFromArray(items, _args);
@@ -100,12 +111,20 @@ const authorType = new GraphQLObjectType({
 
 const bookType = new GraphQLObjectType({
   name: "Book",
+  description: "Information on a book",
   fields: () => ({
     id: globalIdField("Book"),
-    title: { type: new GraphQLNonNull(GraphQLString) },
-    format: { type: new GraphQLNonNull(GraphQLString) },
+    title: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: "Name of the book",
+    },
+    format: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: "Format of the book, for example: paper-back or hard-back",
+    },
     authors: {
       type: AuthorConnection,
+      description: "Author(s) of book",
       args: connectionArgs,
       resolve: async (
         source: any,
@@ -114,22 +133,38 @@ const bookType = new GraphQLObjectType({
       ) => {
         const bookId = source.id;
         const bookAuthors = await context.loaders.bookAuthors.load(bookId);
-        return connectionFromArray(bookAuthors, args)
+        return connectionFromArray(bookAuthors, args);
       },
     },
     genres: {
       type: GenreConnection,
+      description: "Genres associated with book",
       resolve: async (source: any, _args: any, context: Context) => {
-        const bookId = source.id
-        const items = await context.loaders.bookGenres.load(bookId)
+        const bookId = source.id;
+        const items = await context.loaders.bookGenres.load(bookId);
         return connectionFromArray(items, _args);
       },
     },
-    publication_date: { type: new GraphQLNonNull(GraphQLString) },
-    edition: { type: new GraphQLNonNull(GraphQLInt) },
-    pages: { type: new GraphQLNonNull(GraphQLInt) },
-    created_at: { type: new GraphQLNonNull(GraphQLString) },
-    languages: { type: new GraphQLNonNull(GraphQLString) },
+    publication_date: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: "Original publication date of the book",
+    },
+    edition: {
+      type: new GraphQLNonNull(GraphQLInt),
+      description: "Current edition of book",
+    },
+    pages: {
+      type: new GraphQLNonNull(GraphQLInt),
+      description: "Number of pages contained in book",
+    },
+    created_at: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: "Creation date of current resource",
+    },
+    language: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: "Language of book",
+    },
   }),
   interfaces: [nodeInterface],
 });
@@ -156,16 +191,19 @@ const schema: GraphQLSchema = new GraphQLSchema({
     fields: {
       authors: {
         type: AuthorConnection,
+        description: "All authors",
         args: connectionArgs,
         resolve: authorsResolver,
       },
       books: {
         type: BookConnection,
+        description: "All books",
         args: connectionArgs,
         resolve: booksResolver,
       },
       genres: {
         type: GenreConnection,
+        description: "All genres",
         args: connectionArgs,
         resolve: genresResolver,
       },
