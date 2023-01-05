@@ -36,6 +36,8 @@ Next let's create a new `.env` file in the project root with the following conte
 POSTGRES_USER=root
 POSTGRES_PASSWORD=example_password
 POSTGRES_DB=athenaeum
+
+HMAC_SECRET_KEY=abcd1234
 ```
 
 You can use the `.env-example` file as a reference point.
