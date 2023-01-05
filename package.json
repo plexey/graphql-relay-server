@@ -1,18 +1,17 @@
 {
-  "name": "pure-graphql",
+  "name": "graphql-relay-server",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "An Express server exposing a demonstrative Relay GraphQL API",
+  "main": "index.ts",
   "scripts": {
     "start": "nodemon src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "db:start": "sh ./scripts/run.sh",
-    "db:init-tables": "ts-node src/sql/initTables",
-    "db:populate-tables": "ts-node src/sql/populateTables.ts",
-    "scrap": "ts-node src/sql/select.ts"
+    "db:init": "./scripts/run.sh",
+    "db:create-tables": "ts-node src/sql/createTables",
+    "db:populate-tables": "ts-node src/sql/populateTables.ts"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Tom Trinca",
+  "license": "",
   "dependencies": {
     "@faker-js/faker": "^6.0.0-alpha.6",
     "@types/chance": "^1.1.3",
