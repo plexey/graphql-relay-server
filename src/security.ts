@@ -60,13 +60,17 @@ export const generateJWT = (email: string): string => {
 
 export const verifyJWT = (jwt: string) => {
   if (typeof jwt !== "string") {
-    return false;
+    return {
+      verified: false,
+    };
   }
 
   const [header, payload, signature] = jwt.split(".");
 
   if (!header || !payload || !signature) {
-    return false;
+    return {
+      verified: false,
+    };
   }
 
   const decodedPayload = base64URLDecode(payload);
@@ -74,12 +78,16 @@ export const verifyJWT = (jwt: string) => {
 
   // check if correct issuer
   if (parsedPayload.iss !== "athenaeum") {
-    return false;
+    return {
+      verified: false,
+    };
   }
 
   // check if token is expired
   if (parsedPayload.exp <= Date.now()) {
-    return false;
+    return {
+      verified: false,
+    };
   }
 
   const { HMAC_SECRET_KEY } = process.env;
@@ -94,9 +102,16 @@ export const verifyJWT = (jwt: string) => {
 
   const comparisonJWT = header + "." + payload + "." + comparisonSignature;
 
-  if (comparisonJWT === jwt) {
-    return true;
+  if (comparisonJWT !== jwt) {
+    return {
+      verified: false,
+    };
   }
+
+  return {
+    verified: true,
+    payload: parsedPayload,
+  };
 };
 
 const extractJWT = (req: Request): string => {
@@ -112,11 +127,17 @@ export const authenticateJWT = (
   next: NextFunction
 ) => {
   const jwt = extractJWT(req);
-  const verified = verifyJWT(jwt);
+  const verificationResponse = verifyJWT(jwt);
 
-  if (!verified) {
+  const { verified } = verificationResponse;
+  if (verified === false) {
     return res.sendStatus(403);
   }
+
+  // Store user email extracted from JWT
+  // in res.locals for future user down the chain
+  const { payload } = verificationResponse;
+  res.locals.user_email = payload.context.user.email;
 
   next();
 };
