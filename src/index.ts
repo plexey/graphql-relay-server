@@ -31,9 +31,11 @@ import { loaders } from "./dataLoaders";
 import genresResolver from "./resolvers/genres";
 import booksResolver from "./resolvers/books";
 import authorsResolver from "./resolvers/authors";
+import viewerResolver from "./resolvers/viewer";
 
 type Context = {
   loaders: typeof loaders;
+  user_email?: string;
 };
 
 const { nodeInterface, nodeField } = nodeDefinitions(
@@ -172,6 +174,30 @@ const bookType = new GraphQLObjectType({
   interfaces: [nodeInterface],
 });
 
+const viewerType = new GraphQLObjectType({
+  name: "Viewer",
+  description: "The current viewer",
+  fields: () => ({
+    id: globalIdField("Viewer"),
+    first_name: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: "First name of current user",
+    },
+    last_name: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: "Last name of current user",
+    },
+    email: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: "Email address of current user",
+    },
+    created_at: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: "Creation date of current user",
+    },
+  }),
+});
+
 var { connectionType: BookConnection } = connectionDefinitions({
   name: "Book",
   nodeType: bookType,
@@ -211,6 +237,11 @@ const schema: GraphQLSchema = new GraphQLSchema({
         resolve: genresResolver,
       },
       node: nodeField,
+      viewer: {
+        type: viewerType,
+        description: "Current user",
+        resolve: viewerResolver,
+      },
     },
   }),
 });
@@ -232,12 +263,12 @@ app.post(
     // 'locals' does in fact exist on 'res' here
     const user_email = res?.locals?.user_email;
     return {
-    schema: schema,
-    graphiql: false,
-    context: {
-      loaders: loaders,
+      schema: schema,
+      graphiql: false,
+      context: {
+        loaders: loaders,
         user_email: user_email,
-    },
+      },
     };
   })
 );
