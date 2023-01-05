@@ -18,7 +18,7 @@ This project relies on a PostgreSQL database running via Docker to store data.
 
 [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
 
-With Docker installed,  install the postgres Docker image with this command:
+With Docker installed, install the postgres Docker image with this command:
 
 ```bash
 docker pull postgres
@@ -86,6 +86,7 @@ npm run start
 ```
 
 This script spins up an Express server exposing three REST endpoints:
+
 - `/register` - endpoint to register new user account
 - `/login` - endpoint to login as particular user
 - `/graphql` - endpoint to send GraphQL queries to
@@ -102,18 +103,18 @@ Method: `POST`
 
 Expected HTTP headers:
 
-| Content-Type  | `'application/json'`       |
-|---------------|----------------------------|
+| Content-Type | `'application/json'` |
+| ------------ | -------------------- |
 
 Expected arguments:
 
-| **Field**         | **Type** | **Required**   |
-|-------------------|----------|----------------|
-| `email`           | `string` | `true`         |
-| `firstName`       | `string` | `true`         |
-| `lastName`        | `string` | `true`         |
-| `password`        | `string` | `true`         |
-| `confirmPassword` | `string` | `true`         |
+| **Field**         | **Type** | **Required** |
+| ----------------- | -------- | ------------ |
+| `email`           | `string` | `true`       |
+| `firstName`       | `string` | `true`       |
+| `lastName`        | `string` | `true`       |
+| `password`        | `string` | `true`       |
+| `confirmPassword` | `string` | `true`       |
 
 Once a new user account has been created via `/register`, we can then login as that user via the `/login` endpoint.
 
@@ -125,37 +126,34 @@ Method: `POST`
 
 Expected HTTP headers:
 
-| Content-Type  | `'application/json'`       |
-|---------------|----------------------------|
+| Content-Type | `'application/json'` |
+| ------------ | -------------------- |
 
 Expected Arguments:
 
-| **Field**      | **Type**     | **Required** |
-|------------|----------|----------|
-| `email`    | `string` | `true`   |
-| `password` | `string` | `true`   |
-
+| **Field**  | **Type** | **Required** |
+| ---------- | -------- | ------------ |
+| `email`    | `string` | `true`       |
+| `password` | `string` | `true`       |
 
 Once a JWT has been obtained via the `/login` endpoint, the JWT can be passed along as an HTTP Authorization header on `/graphql` requests.
 
-### `/graphql` 
+### `/graphql`
 
-The `/graphql` endpoint accepts GraphQL requests. 
+The `/graphql` endpoint accepts GraphQL requests.
 
 Method: `POST`
 
-Expected HTTP Headers:
+HTTP Headers:
 
-| Content-Type  | `'application/json'`       |
-|---------------|----------------------------|
-| Authorization | `'Bearer xxx.xxx.xxx'`     |
+| Content-Type  | `'application/json'`   |
+| ------------- | ---------------------- |
+| Authorization | `'Bearer xxx.xxx.xxx'` |
 
-The JWT token we obtained earlier must be included in requests to `/graphql` as an Authorization HTTP header.
+The JWT token we obtained earlier can be included in requests to `/graphql` as an Authorization HTTP header.
 
-Now we're in business!
+This project ships with GraphiQL allowing you to write and execute queries through a web interface.
 
+If the Express server is up, head over to `http://localhost:4000/graphql` to start querying.
 
-
-
-
-
+You'll need to create a new cookie called `Authorization` with the value of your JWT in order to use the GraphiQL interface.
