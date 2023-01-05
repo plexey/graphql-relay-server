@@ -91,3 +91,8 @@ export const getTotalCount = async (tableName: string) => {
   const totalCount = parseInt(values[0] as string);
   return totalCount;
 };
+
+export const selectUser = async (email: string) => {
+  const res = await pool.query("select * from users where email = $1", [email]);
+  return res.rows[0];
+};
