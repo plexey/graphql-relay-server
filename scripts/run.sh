@@ -1,6 +1,6 @@
 source .env
 
-sudo docker run -d \
+docker run -d \
   --name athenaeum \
   -p 5432:5432 \
   -e POSTGRES_USER=$POSTGRES_USER \
