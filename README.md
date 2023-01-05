@@ -51,6 +51,10 @@ Setting up this project involves the following:
 
 ## Install Docker
 
+The data for the GraphQL API in this project is resolved from a PostgreSQL database. 
+
+The PostgreSQL database is itself running within a Docker container.
+
 If you don't already have Docker installed, you can get Docker using the link below:
 
 [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
@@ -59,13 +63,15 @@ If you don't already have Docker installed, you can get Docker using the link be
 
 ## Start Database
 
-With Docker installed, we can now install the postgres Docker image with this command:
+With Docker installed, we let's pull down the PostgreSQL Docker image with this command:
 
 ```bash
 docker pull postgres
 ```
 
-Once that's done, clone this project then install the dependencies with:
+We can use this Docker image to spin up a PostgreSQL Docker container.
+
+Before we spin up a container, let's clone this project and then install its dependencies with:
 
 ```bash
 npm install
@@ -81,7 +87,7 @@ POSTGRES_DB=athenaeum
 HMAC_SECRET_KEY=abcd1234
 ```
 
-You can use the `.env-example` file as a reference point.
+We can use the `.env-example` file included in the project as a reference.
 
 We can start a new postgres Docker container from within the project by running:
 
@@ -95,7 +101,7 @@ This will spin up a new postgres Docker image with some pre-configured environme
 
 ## Add Tables
 
-Now that the postgres Docker container is up and running, let's add the tables we need to the database with the following command:
+Now that our new postgres Docker container is up and running, let's add the tables we need to the database with the following command:
 
 ```bash
 npm run db:create-tables
@@ -116,9 +122,11 @@ This will create the following empty tables in the postgres database:
 
 ## Populate Tables
 
-This project includes mocking utilities to help populate the tables with some data. These utilities can be viewed under `src/mock/dbData.ts`.
+This project includes mocking utilities to help populate the tables with some data. 
 
-Run the following script to populate the tables with some mock data:
+These utilities can be viewed under `src/mock/dbData.ts`.
+
+Run the following command to populate the tables with some mock data:
 
 ```bash
 npm run db:populate-tables
