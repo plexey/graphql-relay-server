@@ -1,8 +1,6 @@
 import crypto from "crypto";
 import { Request, Response, NextFunction } from "express";
 
-const SECRET = "kXp2s5v8y/B?E(H+MbQeThVmYq3t6w9z";
-
 const SECOND = 1000;
 const MINUTE = SECOND * 60;
 const HOUR = MINUTE * 60;
@@ -45,8 +43,13 @@ export const generateJWT = (email: string): string => {
   const encodedHeader = base64URLEncode(JSON.stringify(header));
   const encodedPayload = base64URLEncode(JSON.stringify(payload));
 
+  const { HMAC_SECRET_KEY } = process.env;
+  if (!HMAC_SECRET_KEY) {
+    throw new Error("Missing required environment variable 'HMAC_SECRET_KEY'");
+  }
+
   const signature = crypto
-    .createHmac("sha256", SECRET)
+    .createHmac("sha256", HMAC_SECRET_KEY)
     .update(encodedHeader + "." + encodedPayload)
     .digest("base64url");
 
@@ -79,8 +82,13 @@ export const verifyJWT = (jwt: string) => {
     return false;
   }
 
+  const { HMAC_SECRET_KEY } = process.env;
+  if (!HMAC_SECRET_KEY) {
+    throw new Error("Missing required environment variable 'HMAC_SECRET_KEY'");
+  }
+
   const comparisonSignature = crypto
-    .createHmac("sha256", SECRET)
+    .createHmac("sha256", HMAC_SECRET_KEY)
     .update(header + "." + payload)
     .digest("base64url");
 
