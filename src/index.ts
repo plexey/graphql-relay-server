@@ -227,12 +227,18 @@ app.get("/login", login);
 app.post(
   "/graphql",
   authenticateJWT,
-  graphqlHTTP({
+  graphqlHTTP((_req, res) => {
+    // @ts-expect-error
+    // 'locals' does in fact exist on 'res' here
+    const user_email = res?.locals?.user_email;
+    return {
     schema: schema,
     graphiql: false,
     context: {
       loaders: loaders,
+        user_email: user_email,
     },
+    };
   })
 );
 
