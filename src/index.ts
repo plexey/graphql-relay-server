@@ -224,12 +224,23 @@ app.use(cookieParser());
 app.get("/register", register);
 app.get("/login", login);
 
-app.use(
+app.post(
   "/graphql",
   authenticateJWT,
   graphqlHTTP({
     schema: schema,
-    // rootValue: root,
+    graphiql: false,
+    context: {
+      loaders: loaders,
+    },
+  })
+);
+
+app.get(
+  "/graphql",
+  authenticateJWT,
+  graphqlHTTP({
+    schema: schema,
     graphiql: true,
     context: {
       loaders: loaders,
