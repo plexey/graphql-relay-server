@@ -11,7 +11,7 @@ export default async function booksResolver(
   if (last) {
     const rows = await selectBooks({
       offset: before ? cursorToOffset(before) : 0,
-      limit: last ?? DEFAULT_LIMIT,
+      limit: last + 1,
       order: "desc",
     });
 
@@ -20,7 +20,7 @@ export default async function booksResolver(
 
   const rows = await selectBooks({
     offset: after ? cursorToOffset(after) : 0,
-    limit: first ?? DEFAULT_LIMIT,
+    limit: first ? first + 1 : DEFAULT_LIMIT + 1,
     order: "asc",
   });
 
