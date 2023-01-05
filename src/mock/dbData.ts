@@ -10,7 +10,7 @@ import {
   Genre,
   User,
 } from "../sql/types";
-import { getHashedPassword } from "../utils";
+import { generateSalt, getHashedPassword } from "../utils";
 
 const now = Math.round(Date.now() / 1000);
 
@@ -196,6 +196,11 @@ export const generateBooks = (count: number): Book[] => {
 const generateUser = (): User => {
   const first_name = faker.name.firstName();
   const last_name = faker.name.lastName();
+
+  const password = faker.random.alphaNumeric(50);
+  const salt = generateSalt();
+  const hashedPassword = getHashedPassword(password, salt);
+
   return {
     id: uuidv4(),
     first_name,
@@ -205,18 +210,26 @@ const generateUser = (): User => {
       last_name,
       `${faker.animal.type()}.com`
     ),
-    password_hash: faker.random.alphaNumeric(50),
+    password_hash: hashedPassword,
+    password_salt: salt,
     created_at: now,
   };
 };
 
-const testUser: User = {
-  id: uuidv4(),
-  first_name: "User",
-  last_name: "Zero",
-  email: "user0@athenaeum.net",
-  password_hash: getHashedPassword("thevengabusiscoming!"),
-  created_at: now,
+const createTestUser = (): User => {
+  const password = "thevengabusiscoming!";
+  const salt = generateSalt();
+  const hashedPassword = getHashedPassword(password, salt);
+
+  return {
+    id: uuidv4(),
+    first_name: "User",
+    last_name: "Zero",
+    email: "user0@athenaeum.net",
+    password_hash: hashedPassword,
+    password_salt: salt,
+    created_at: now,
+  };
 };
 
 export const generateUsers = (count: number): User[] => {
@@ -227,7 +240,7 @@ export const generateUsers = (count: number): User[] => {
     users.push(generateUser());
     i++;
   }
-  return [testUser, ...users];
+  return [createTestUser(), ...users];
 };
 
 const generateBookAuthor = (

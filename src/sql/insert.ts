@@ -82,13 +82,14 @@ export const insertUsers = async (users: User[]) => {
     await client.query("BEGIN");
     const genreQueries = users.map((user) => {
       return client.query(
-        "INSERT INTO users (id, first_name, last_name, email, password_hash, created_at) values ($1, $2, $3, $4, $5, to_timestamp($6))",
+        "INSERT INTO users (id, first_name, last_name, email, password_hash, password_salt, created_at) values ($1, $2, $3, $4, $5, $6, to_timestamp($7))",
         [
           user.id,
           user.first_name,
           user.last_name,
           user.email,
           user.password_hash,
+          user.password_salt,
           user.created_at,
         ]
       );
@@ -106,13 +107,14 @@ export const insertUsers = async (users: User[]) => {
 
 export const insertUser = async (user: User) => {
   const result = await pool.query(
-    "INSERT INTO users (id, first_name, last_name, email, password_hash, created_at) values ($1, $2, $3, $4, $5, to_timestamp($6))",
+    "INSERT INTO users (id, first_name, last_name, email, password_hash, password_salt, created_at) values ($1, $2, $3, $4, $5, $6, to_timestamp($7))",
     [
       user.id,
       user.first_name,
       user.last_name,
       user.email,
       user.password_hash,
+      user.password_salt,
       user.created_at,
     ]
   );

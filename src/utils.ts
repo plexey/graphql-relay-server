@@ -99,8 +99,10 @@ export const connectionFromArray = (data: any[], args: ConnectionArguments) => {
   };
 };
 
-export const getHashedPassword = (password: string) => {
-  const sha256 = crypto.createHash("sha256");
-  const hash = sha256.update(password).digest("base64");
-  return hash;
+export const generateSalt = (): string => {
+  return crypto.randomBytes(16).toString("hex");
+};
+
+export const getHashedPassword = (password: string, salt: string) => {
+  return crypto.pbkdf2Sync(password, salt, 1000, 64, `sha512`).toString(`hex`);
 };

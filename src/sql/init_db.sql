@@ -68,5 +68,6 @@ create table users (
   last_name text NOT NULL,
   email text NOT NULL,
   password_hash text NOT NULL,
+  password_salt text NOT NULL,
   created_at text NOT NULL
 )

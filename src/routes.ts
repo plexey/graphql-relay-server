@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 
 import { pool } from "./pool";
-import { getHashedPassword } from "./utils";
+import { generateSalt, getHashedPassword } from "./utils";
 import { generateJWT } from "./security";
 import { validateRegistrationParams, VALIDATION_ERROR } from "./validation";
 
@@ -32,28 +32,29 @@ export const register = async (req: Request, res: Response) => {
   const duplicateUser = result.rows.find((user) => user.email === email);
   if (duplicateUser) {
     res.status(401).send({
-      message: "Error: account with that email already exists.",
+      message: "Error: account with that email already exists",
       error: VALIDATION_ERROR.EMAIL_ALREADY_REGISTERED,
     });
     return;
   }
 
-  const hashedPassword = getHashedPassword(password);
+  const salt = generateSalt();
+  const hashedPassword = getHashedPassword(password, salt);
 
-  // Store user into the database if you are using one
-
+  // Insert new user into database
   await insertUser({
     id: uuidv4(),
     first_name: firstName,
     last_name: lastName,
     email,
     password_hash: hashedPassword,
+    password_salt: salt,
     created_at: Math.round(Date.now() / 1000),
   });
 
-  res.status(200);
+  res.status(201);
   res.send({
-    message: "Registration complete.",
+    message: "Registration complete",
   });
   return;
 };
@@ -61,29 +62,42 @@ export const register = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
-  const hashedPassword = getHashedPassword(password);
+  if (email === undefined || password === undefined) {
+    res.status(400).send({ message: "Error: missing required arguments" });
+    return;
+  }
 
-  // Check if user with the same email is also registered
+  if (typeof email !== "string" || typeof password !== "string") {
+    res.status(400).send({ message: "Error: received invalid arguments" });
+    return;
+  }
+
   const { rows } = await pool.query(
-    `select email, password_hash from users where email=$1`,
+    "select email, password_hash, password_salt from users where email=$1",
     [email]
   );
 
   const row = rows[0];
-
   if (!row) {
-    res.status(401).send({ message: "Invalid email" });
+    res.status(404).send({ message: "User not found" });
     return;
   }
 
-  if (row.password_hash !== hashedPassword) {
-    res.status(401).send({ message: "Invalid password" });
+  const { password_hash, password_salt } = row;
+
+  // create a new hash from the provided password using password_salt stored against user
+  const hash = getHashedPassword(password, password_salt);
+
+  // check if newly hashed password matches the password_hash stored against user
+  if (hash !== password_hash) {
+    res.status(401).send({ message: "Incorrect password" });
     return;
   }
 
   const jwt = generateJWT(email);
 
-  res.send({
+  res.status(200).send({
+    message: "User logged in",
     jwt,
   });
 };
