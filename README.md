@@ -1,6 +1,6 @@
 # GraphQL Relay Server
 
-The project contains an API a fake book store called Athenaeum.
+The project contains an API for a fake book store called Athenaeum.
 
 It showcases a GraphQL API compliant with the Relay GraphQL server spec.
 
