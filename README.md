@@ -1,30 +1,70 @@
 # GraphQL Relay Server
 
-This project features a demonstrative implementation of a Relay GraphQL server running on an Express server.
+The project contains an API a fake book store called Athenaeum.
 
-The GraphQL schema models a book store with the underlying data resolved from a PostgreSQL database.
+It showcases a GraphQL API compliant with the Relay GraphQL server spec.
 
-# Setup
+## Table of Contents
 
-This project consists of the following stack:
+- [Project Stack](#stack)
+- [Project Features](#features)
+- [Project Setup](#setup)
+- [Endpoints](#endpoints)
 
-- Relay GraphQL server
-- Express Server
-- PostgreSQL database
+<a name="stack"></a>
 
-To run this project and begin querying the schema we'll first need to setup the database and then spin up the Express server.
+## Project Stack
 
-This project relies on a PostgreSQL database running via Docker to store data.
+- GraphQL API
+- Express API
+- PostgreSQL
+- Docker
+
+<a name="features"></a>
+
+## Features
+
+- Relay GraphQL API featuring:
+  - Node interface
+  - dataloaders
+  - cursor based pagination
+- Authentication via salted hashed password
+- Authorization via signed JWT
+- Database data mocking with Faker
+
+<a name="setup"></a>
+
+## Setup
+
+Setting up this project involves the following:
+
+- [Install Docker](#install-docker)
+- [Start Database](#start-database)
+- [Add Tables](#add-tables)
+- [Populate Tables](#populate-tables)
+- [Start Express server](#start-express-server)
+- [Register User](#register-user)
+- [Login User](#login-user)
+
+<a name="install-docker"></a>
+
+## Install Docker
+
+If you don't already have Docker installed, you can get Docker using the link below:
 
 [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
 
-With Docker installed, install the postgres Docker image with this command:
+<a name="start-postgresql-database"></a>
+
+## Start Database
+
+With Docker installed, we can now install the postgres Docker image with this command:
 
 ```bash
 docker pull postgres
 ```
 
-Once that's done, clone this project and install the dependencies with:
+Once that's done, clone this project then install the dependencies with:
 
 ```bash
 npm install
@@ -42,15 +82,19 @@ HMAC_SECRET_KEY=abcd1234
 
 You can use the `.env-example` file as a reference point.
 
-We can start a new postgres Docker from within the project by running:
+We can start a new postgres Docker container from within the project by running:
 
 ```bash
-npm run db:start
+npm run db:init
 ```
 
-This command spins up a new postgres Docker image with some pre-configured environment variables read from the `.env` file.
+This will spin up a new postgres Docker image with some pre-configured environment variables read from the `.env` file we added in the previous step.
 
-Now that the postgres Docker container is up and running, let's populate it with some data by running the following command:
+<a name="add-tables"></a>
+
+## Add Tables
+
+Now that the postgres Docker container is up and running, let's add the tables we need to the database with the following command:
 
 ```bash
 npm run db:create-tables
@@ -67,35 +111,69 @@ This will create the following empty tables in the postgres database:
 - `book_format`
 - `genre_type`
 
-This project includes mocking utilities to help populate the tables with some data.
+<a name="populate-tables"></a>
 
-These utilities can be viewed under `src/mock/dbData.ts`.
+## Populate Tables
 
-Run the following script to populate the tables with mock data:
+This project includes mocking utilities to help populate the tables with some data. These utilities can be viewed under `src/mock/dbData.ts`.
+
+Run the following script to populate the tables with some mock data:
 
 ```bash
 npm run db:populate-tables
 ```
 
-Now that the postgres database is setup and populated with some data, we can traverse this data via the Relay GraphQL API provided by this project.
+<a name="start-express-server"></a>
 
-To run the GraphQL API, run the following script:
+### Start Express Server
+
+Now that the postgres database is running with populated tables, we can spin up the Express server provided by this project.
+
+This can be done via the following command:
 
 ```bash
 npm run start
 ```
 
-This script spins up an Express server exposing three REST endpoints:
+This will spin up an Express server exposing three REST endpoints:
 
 - `/register` - endpoint to register new user account
 - `/login` - endpoint to login as particular user
 - `/graphql` - endpoint to send GraphQL queries to
 
-To use the `/graphql` endpoint we first need to login to the system as one of its users. The `/graphql` endpoint expects a [JWT](https://jwt.io/) token to be passed along with every request, and this JWT is obtained when logging in via `/login`.
+<a name="register-user"></a>
 
-Before we can obtain a JWT, we'll need to register a new user account via the `/register` endpoint.
+### Register User
 
-### `/register`
+To use the `/graphql` endpoint we first need to register as a new user and then login as that user.
+
+See the [register](#register) endpoint documentation for more details.
+
+Once a new user account has been registered, we can proceed to login as that user.
+
+<a name="login-user"></a>
+
+### Login User
+
+The `/login` endpoint is used to login with a set of user credentials and responds with a [JSON Web Token](https://jwt.io/), or JWT for short.
+
+See the [login](#login) endpoint documentation for more details.
+
+Once a JWT has been obtained via the `/login` endpoint, we can proceed to query the GraphQL API endpoint `/graphql`.
+
+## GraphQL API
+
+This project ships with GraphiQL allowing you to write and execute queries via a web interface.
+
+If the Express server is up, we can head over to `http://localhost:4000/graphql` to start querying the GraphQL API. To use the GraphiQL interface, we'll need to create a new cookie in the browser called `Authorization` with the value of the JWT we acquired by logging in.
+
+<a name="Endpoints"></a>
+
+## Endpoints
+
+<a name="register"></a>
+
+### register
 
 The `/register` endpoint is used to register a new user account.
 
@@ -116,11 +194,11 @@ Expected arguments:
 | `password`        | `string` | `true`       |
 | `confirmPassword` | `string` | `true`       |
 
-Once a new user account has been created via `/register`, we can then login as that user via the `/login` endpoint.
+<a name="login"></a>
 
-### `/login`
+### login
 
-The `/login` endpoint is used to login with a set of user credentials and responds with a JWT on success.
+The `/login` endpoint is used to login with a set of user credentials and responds with a [JSON Web Token](https://jwt.io/), abbreviated to JWT.
 
 Method: `POST`
 
@@ -136,9 +214,9 @@ Expected Arguments:
 | `email`    | `string` | `true`       |
 | `password` | `string` | `true`       |
 
-Once a JWT has been obtained via the `/login` endpoint, the JWT can be passed along as an HTTP Authorization header on `/graphql` requests.
+<a name="graphql"></a>
 
-### `/graphql`
+### graphql
 
 The `/graphql` endpoint accepts GraphQL requests.
 
@@ -149,11 +227,3 @@ HTTP Headers:
 | Content-Type  | `'application/json'`   |
 | ------------- | ---------------------- |
 | Authorization | `'Bearer xxx.xxx.xxx'` |
-
-The JWT token we obtained earlier can be included in requests to `/graphql` as an Authorization HTTP header.
-
-This project ships with GraphiQL allowing you to write and execute queries through a web interface.
-
-If the Express server is up, head over to `http://localhost:4000/graphql` to start querying.
-
-You'll need to create a new cookie called `Authorization` with the value of your JWT in order to use the GraphiQL interface.
