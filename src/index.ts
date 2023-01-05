@@ -1,15 +1,18 @@
-require('dotenv').config();
+require("dotenv").config();
 
 import express from "express";
+import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 import { graphqlHTTP } from "express-graphql";
+
 import {
   GraphQLObjectType,
   GraphQLSchema,
   GraphQLString,
-  GraphQLList,
   GraphQLNonNull,
   GraphQLInt,
 } from "graphql";
+
 import {
   nodeDefinitions,
   globalIdField,
@@ -19,15 +22,15 @@ import {
   ConnectionArguments,
   connectionFromArray,
 } from "graphql-relay";
-import { fetchResource } from "./utils";
-import { loaders } from "./dataloaders";
-import authorsResolver from "./resolvers/authors";
-import booksResolver from "./resolvers/books";
-import genresResolver from "./resolvers/genres";
-import bodyParser from "body-parser";
+
 import { login, register } from "./routes";
-import { authenticateJWT, verifyJWT } from "./security";
-import cookieParser from "cookie-parser";
+import { authenticateJWT } from "./security";
+import { fetchResource } from "./utils";
+import { loaders } from "./dataLoaders";
+
+import genresResolver from "./resolvers/genres";
+import booksResolver from "./resolvers/books";
+import authorsResolver from "./resolvers/authors";
 
 type Context = {
   loaders: typeof loaders;
