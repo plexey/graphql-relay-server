@@ -9,6 +9,7 @@ It showcases a GraphQL API compliant with the Relay GraphQL server spec.
 - [Project Stack](#stack)
 - [Project Features](#features)
 - [Project Setup](#setup)
+- [GraphQL API](#graphql-api)
 - [Endpoints](#endpoints)
 
 <a name="stack"></a>
@@ -161,11 +162,15 @@ See the [login](#login) endpoint documentation for more details.
 
 Once a JWT has been obtained via the `/login` endpoint, we can proceed to query the GraphQL API endpoint `/graphql`.
 
+<a name="graphql-api"></a>
+
 ## GraphQL API
 
 This project ships with GraphiQL allowing you to write and execute queries via a web interface.
 
-If the Express server is up, we can head over to `http://localhost:4000/graphql` to start querying the GraphQL API. To use the GraphiQL interface, we'll need to create a new cookie in the browser called `Authorization` with the value of the JWT we acquired by logging in.
+If the Express server is up, we can head over to `http://localhost:4000/graphql` to start querying the GraphQL API. 
+
+To use the GraphiQL interface, we'll need to create a new cookie in the browser called `Authorization` with the value of the JWT we acquired by logging in.
 
 <a name="Endpoints"></a>
 
