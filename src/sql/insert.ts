@@ -1,16 +1,8 @@
 import chalk from "chalk";
-import {
-  authors,
-  bookAuthors,
-  bookGenres,
-  books,
-  genres,
-  users,
-} from "../mock/dbData";
 import { pool } from "../pool";
-import { User } from "./types";
+import { Author, Book, BookAuthor, BookGenre, Genre, User } from "./types";
 
-export const insertGenres = async () => {
+export const insertGenres = async (genres: Genre[]) => {
   console.log(chalk.yellow("> inserting genres"));
   const client = await pool.connect();
   try {
@@ -31,7 +23,7 @@ export const insertGenres = async () => {
   }
 };
 
-export const insertAuthors = async () => {
+export const insertAuthors = async (authors: Author[]) => {
   console.log(chalk.yellow("> inserting authors"));
   const client = await pool.connect();
   try {
@@ -53,7 +45,7 @@ export const insertAuthors = async () => {
   }
 };
 
-export const insertBooks = async () => {
+export const insertBooks = async (books: Book[]) => {
   console.log(chalk.yellow("> inserting books"));
   const client = await pool.connect();
   try {
@@ -83,7 +75,7 @@ export const insertBooks = async () => {
   }
 };
 
-export const insertUsers = async () => {
+export const insertUsers = async (users: User[]) => {
   console.log(chalk.yellow("> inserting users"));
   const client = await pool.connect();
   try {
@@ -127,7 +119,7 @@ export const insertUser = async (user: User) => {
   return result;
 };
 
-export const insertBookAuthors = async () => {
+export const insertBookAuthors = async (bookAuthors: BookAuthor[]) => {
   console.log(chalk.yellow("> inserting book authors"));
   const client = await pool.connect();
   try {
@@ -155,7 +147,7 @@ export const insertBookAuthors = async () => {
   }
 };
 
-export const insertBookGenres = async () => {
+export const insertBookGenres = async (bookGenres: BookGenre[]) => {
   console.log(chalk.yellow("> inserting book genres"));
   const client = await pool.connect();
   try {

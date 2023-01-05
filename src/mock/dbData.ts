@@ -136,7 +136,7 @@ const generateAuthor = (): Author => {
   };
 };
 
-const generateAuthors = (count: number): Author[] => {
+export const generateAuthors = (count: number): Author[] => {
   console.log(chalk.blue("> generating authors"));
   let i = 0;
   const authors = [];
@@ -147,9 +147,7 @@ const generateAuthors = (count: number): Author[] => {
   return authors;
 };
 
-export const authors = generateAuthors(100);
-
-const generateGenres = (): Genre[] => {
+export const generateGenres = (): Genre[] => {
   console.log(chalk.blue("> generating genres"));
   const fictionGenres: Genre[] = fictionCategories.map((category) => ({
     id: uuidv4(),
@@ -168,8 +166,6 @@ const generateGenres = (): Genre[] => {
   return [...fictionGenres, ...nonFictionGenres];
 };
 
-export const genres = generateGenres();
-
 const generateBook = (): Book => {
   return {
     id: uuidv4(),
@@ -186,7 +182,7 @@ const generateBook = (): Book => {
   };
 };
 
-const generateBooks = (count: number): Book[] => {
+export const generateBooks = (count: number): Book[] => {
   console.log(chalk.blue("> generating books"));
   let i = 0;
   const books = [];
@@ -196,8 +192,6 @@ const generateBooks = (count: number): Book[] => {
   }
   return books;
 };
-
-export const books = generateBooks(400);
 
 const generateUser = (): User => {
   const first_name = faker.name.firstName();
@@ -216,17 +210,6 @@ const generateUser = (): User => {
   };
 };
 
-const generateUsers = (count: number): User[] => {
-  console.log(chalk.blue("> generating users"));
-  let i = 0;
-  const users = [];
-  while (i < count) {
-    users.push(generateUser());
-    i++;
-  }
-  return users;
-};
-
 const testUser: User = {
   id: uuidv4(),
   first_name: "User",
@@ -236,7 +219,16 @@ const testUser: User = {
   created_at: now,
 };
 
-export const users = [testUser, ...generateUsers(100)];
+export const generateUsers = (count: number): User[] => {
+  console.log(chalk.blue("> generating users"));
+  let i = 0;
+  const users = [];
+  while (i < count) {
+    users.push(generateUser());
+    i++;
+  }
+  return [testUser, ...users];
+};
 
 const generateBookAuthor = (
   bookId: string,
@@ -255,7 +247,7 @@ const generateBookAuthor = (
 const randValueInRange = (min: number, max: number) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
 
-const generateBookAuthors = () => {
+export const generateBookAuthors = (books: Book[], authors: Author[]) => {
   console.log(chalk.blue("> generating book authors"));
   const bookAuthors: BookAuthor[] = [];
 
@@ -292,8 +284,6 @@ const generateBookAuthors = () => {
   return bookAuthors;
 };
 
-export const bookAuthors = generateBookAuthors();
-
 const generateBookGenre = (bookId: string, genreId: string): BookGenre => {
   return {
     id: uuidv4(),
@@ -303,7 +293,10 @@ const generateBookGenre = (bookId: string, genreId: string): BookGenre => {
   };
 };
 
-const generateBookGenres = (): BookGenre[] => {
+export const generateBookGenres = (
+  books: Book[],
+  genres: Genre[]
+): BookGenre[] => {
   console.log(chalk.blue("> generating book genres"));
   const bookGenres: BookGenre[] = [];
 
@@ -327,5 +320,3 @@ const generateBookGenres = (): BookGenre[] => {
 
   return bookGenres;
 };
-
-export const bookGenres = generateBookGenres();

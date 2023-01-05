@@ -15,11 +15,11 @@ const createTables = async () => {
 };
 
 const run = async () => {
-  console.log(chalk.cyan('==> INITIALIZING TABLES') + " 🔨")
+  console.log(chalk.cyan('> INITIALIZING TABLES') + " 🔨")
   await createTables();
 };
 
 run().finally(() => {
-  console.log(chalk.green("==> DONE ") +"✅");
+  console.log(chalk.green("> DONE ") +"✅\n");
   // process.exit(0);
 });
