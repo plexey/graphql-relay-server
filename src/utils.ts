@@ -8,7 +8,7 @@ import crypto from "crypto";
 import { selectResource } from "./sql/select";
 import { ResourceType } from "./types";
 
-export const DEFAULT_LIMIT = 5;
+export const DEFAULT_LIMIT = 40;
 
 export const toGlobalId = (type: ResourceType, id: string) => {
   const str = `${type}:${id}`;
