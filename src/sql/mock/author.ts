@@ -7,7 +7,7 @@ import { now } from "./utils";
 const generateAuthor = (): Author => {
   return {
     id: uuidv4(),
-    first_name: faker.name.findName(),
+    first_name: faker.name.firstName(),
     last_name: faker.name.lastName(),
     created_at: now,
   };
