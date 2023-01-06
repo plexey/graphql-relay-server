@@ -135,7 +135,7 @@ export const authenticateJWT = (
   }
 
   // Store user email extracted from JWT
-  // in res.locals for future user down the chain
+  // in res.locals for future use down the chain
   const { payload } = verificationResponse;
   res.locals.user_email = payload.context.user.email;
 
