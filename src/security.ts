@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { Request, Response, NextFunction } from "express";
+import { selectUser } from "./sql/select";
 
 const SECOND = 1000;
 const MINUTE = SECOND * 60;
@@ -58,7 +59,7 @@ export const generateJWT = (email: string): string => {
   return result;
 };
 
-export const verifyJWT = (jwt: string) => {
+export const verifyJWT = async (jwt: string) => {
   if (typeof jwt !== "string") {
     return {
       verified: false,
@@ -89,6 +90,23 @@ export const verifyJWT = (jwt: string) => {
       verified: false,
     };
   }
+  
+  // check if payload contains user email
+  const providedEmail = parsedPayload?.context?.user?.email;
+  if (!providedEmail) {
+    return {
+      verified: false,
+    };
+  }
+
+  // check if provided email corresponds to existing user
+  const matchingUser = await selectUser(providedEmail);
+  if (!matchingUser) {
+    return {
+      verified: false,
+    };
+  }
+
 
   const { HMAC_SECRET_KEY } = process.env;
   if (!HMAC_SECRET_KEY) {
@@ -121,13 +139,13 @@ const extractJWT = (req: Request): string => {
   return jwt;
 };
 
-export const authenticateJWT = (
+export const authenticateJWT = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const jwt = extractJWT(req);
-  const verificationResponse = verifyJWT(jwt);
+  const verificationResponse = await verifyJWT(jwt);
 
   const { verified } = verificationResponse;
   if (verified === false) {
