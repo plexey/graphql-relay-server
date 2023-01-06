@@ -1,15 +1,15 @@
 import { ConnectionArguments, cursorToOffset } from "graphql-relay";
-import { selectAuthors } from "../sql/select";
-import { connectionFromArray, DEFAULT_LIMIT } from "../utils";
+import { selectBooks } from "../../sql/select";
+import { connectionFromArray, DEFAULT_LIMIT } from "../../utils";
 
-export default async function authorsResolver(
+export default async function booksResolver(
   _source: any,
   args: ConnectionArguments
 ) {
   const { first, last, after, before } = args;
-
+  
   if (last) {
-    const rows = await selectAuthors({
+    const rows = await selectBooks({
       offset: before ? cursorToOffset(before) : 0,
       limit: last + 1,
       order: "desc",
@@ -18,7 +18,7 @@ export default async function authorsResolver(
     return connectionFromArray(rows, args);
   }
 
-  const rows = await selectAuthors({
+  const rows = await selectBooks({
     offset: after ? cursorToOffset(after) : 0,
     limit: first ? first + 1 : DEFAULT_LIMIT + 1,
     order: "asc",

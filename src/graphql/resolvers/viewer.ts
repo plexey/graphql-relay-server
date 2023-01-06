@@ -1,4 +1,4 @@
-import { selectUser } from "../sql/select";
+import { selectUser } from "../../sql/select";
 
 export default async function viewerResolver(
   _source: any,
