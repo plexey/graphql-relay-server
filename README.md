@@ -26,9 +26,11 @@ It showcases a GraphQL API compliant with the Relay GraphQL server spec.
 ## Features
 
 - Relay GraphQL API featuring:
-  - Node interface
-  - dataloaders
-  - cursor based pagination
+  - Global Object Identification
+    - Node interface
+    - Node root field
+  - Cursor Connections
+  - Dataloaders
 - Authentication via salted hashed password
 - Authorization via signed JWT
 - Database data mocking with Faker
