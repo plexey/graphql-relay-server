@@ -1,9 +1,7 @@
-import chalk from "chalk";
-import { pool } from "../pool";
 import { Author, Book, BookAuthor, BookGenre, Genre, User } from "./types";
+import { pool } from "../pool";
 
 export const insertGenres = async (genres: Genre[]) => {
-  console.log(chalk.yellow("> inserting genres"));
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -24,7 +22,6 @@ export const insertGenres = async (genres: Genre[]) => {
 };
 
 export const insertAuthors = async (authors: Author[]) => {
-  console.log(chalk.yellow("> inserting authors"));
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -46,7 +43,6 @@ export const insertAuthors = async (authors: Author[]) => {
 };
 
 export const insertBooks = async (books: Book[]) => {
-  console.log(chalk.yellow("> inserting books"));
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -76,7 +72,6 @@ export const insertBooks = async (books: Book[]) => {
 };
 
 export const insertUsers = async (users: User[]) => {
-  console.log(chalk.yellow("> inserting users"));
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -122,7 +117,6 @@ export const insertUser = async (user: User) => {
 };
 
 export const insertBookAuthors = async (bookAuthors: BookAuthor[]) => {
-  console.log(chalk.yellow("> inserting book authors"));
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -150,7 +144,6 @@ export const insertBookAuthors = async (bookAuthors: BookAuthor[]) => {
 };
 
 export const insertBookGenres = async (bookGenres: BookGenre[]) => {
-  console.log(chalk.yellow("> inserting book genres"));
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
