@@ -52,11 +52,9 @@ Setting up this project involves the following:
 
 ## Install Docker
 
-The data for the GraphQL API in this project is resolved from a PostgreSQL database.
+The data for the GraphQL API in this project is resolved from a PostgreSQL database running as a Docker container.
 
-The PostgreSQL database is itself running within a Docker container.
-
-If you don't already have Docker installed, you can get Docker using the link below:
+If you don't already have Docker installed, you can download Docker using the link below:
 
 [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
 
@@ -64,25 +62,25 @@ If you don't already have Docker installed, you can get Docker using the link be
 
 ## Pull PostgreSQL Docker Image
 
-With Docker installed, we let's pull down the PostgreSQL Docker image with this command:
+With Docker installed, let's pull down the PostgreSQL Docker image with this command:
 
 ```bash
 docker pull postgres
 ```
 
-We can use this Docker image to spin up a PostgreSQL Docker container.
+Now we can use this image to spin up a PostgreSQL Docker container.
 
 <a name="setup-database"></a>
 
 ## Setup Database
 
-Before we spin up a new postgres Docker container, let's clone this project and then install its dependencies with:
+Before we spin up a new postgres Docker container, let's first clone this project and then install its dependencies with:
 
 ```bash
 npm install
 ```
 
-With that done, we'll need to create a new `.env` file in the project root with the following contents:
+With the project cloned and it's dependencies installed we'll next create a new `.env` file in the project root with the following contents:
 
 ```bash
 POSTGRES_USER=root
@@ -91,7 +89,9 @@ POSTGRES_DB=athenaeum
 HMAC_SECRET_KEY=abcd1234
 ```
 
-We can use the `.env-example` file included in the project as a reference. These environment variables will be used to provision a new postgres Docker container, among other things.
+The project includes a `.env-example` file which can be used as a reference. 
+
+The environment variables contained in the `.env` file will be used to provision a new postgres Docker container among other uses.
 
 Now we can proceed with setting up the database - let's run the following command to do this:
 
@@ -99,15 +99,13 @@ Now we can proceed with setting up the database - let's run the following comman
 npm run db:setup
 ```
 
-This command does a few things:
+This command does three things:
 
-1. Spins up postgres Docker container
+1. Spins up a postgres database inside a Docker container
 2. Inserts tables into the postgres database
-3. Populates tables with some mock data.
+3. Populates database tables with some mock data
 
-This will spin up a new postgres Docker container with some pre-configured environment variables read from the `.env` file we just added.
-
-The database should now include the following tables:
+After running the above command, we should have a running database with the following tables:
 
 - `users`
 - `books`
@@ -118,7 +116,7 @@ The database should now include the following tables:
 - `book_format`
 - `genre_type`
 
-We can verify this in a number of ways - personally I prefer to jump into a PostgreSQL GUI such as [https://www.pgadmin.org/](https://www.pgadmin.org/) and inspect the database.
+We can verify this in a number of ways - personally I prefer to jump into a PostgreSQL GUI such as [https://www.pgadmin.org/](https://www.pgadmin.org/) to inspect the database.
 
 ### Start Express Server
 
