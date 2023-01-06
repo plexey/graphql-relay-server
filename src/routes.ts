@@ -1,10 +1,9 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 
-import { pool } from "./pool";
-import { generateSalt, getHashedPassword } from "./security";
-import { generateJWT } from "./security";
+import { generateSalt, getHashedPassword, generateJWT } from "./security";
 import { validateRegistrationParams, VALIDATION_ERROR } from "./validation";
+import { pool } from "./pool";
 
 import { insertUser } from "./sql/insert";
 
