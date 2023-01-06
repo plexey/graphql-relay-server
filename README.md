@@ -40,9 +40,8 @@ It showcases a GraphQL API compliant with the Relay GraphQL server spec.
 Setting up this project involves the following:
 
 - [Install Docker](#install-docker)
-- [Start Database](#start-database)
-- [Add Tables](#add-tables)
-- [Populate Tables](#populate-tables)
+- [Pull PostgreSQL Docker Image](#pull-postgresql-docker-image)
+- [Setup Database](#setup-database)
 - [Start Express server](#start-express-server)
 - [Register User](#register-user)
 - [Login User](#login-user)
@@ -51,7 +50,7 @@ Setting up this project involves the following:
 
 ## Install Docker
 
-The data for the GraphQL API in this project is resolved from a PostgreSQL database. 
+The data for the GraphQL API in this project is resolved from a PostgreSQL database.
 
 The PostgreSQL database is itself running within a Docker container.
 
@@ -59,9 +58,9 @@ If you don't already have Docker installed, you can get Docker using the link be
 
 [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
 
-<a name="start-postgresql-database"></a>
+<a name="pull-postgresql-docker-image"></a>
 
-## Start Database
+## Pull PostgreSQL Docker Image
 
 With Docker installed, we let's pull down the PostgreSQL Docker image with this command:
 
@@ -71,43 +70,42 @@ docker pull postgres
 
 We can use this Docker image to spin up a PostgreSQL Docker container.
 
-Before we spin up a container, let's clone this project and then install its dependencies with:
+<a name="setup-database"></a>
+
+## Setup Database
+
+Before we spin up a new postgres Docker container, let's clone this project and then install its dependencies with:
 
 ```bash
 npm install
 ```
 
-Next let's create a new `.env` file in the project root with the following contents:
+With that done, we'll need to create a new `.env` file in the project root with the following contents:
 
-```
+```bash
 POSTGRES_USER=root
 POSTGRES_PASSWORD=example_password
 POSTGRES_DB=athenaeum
-
 HMAC_SECRET_KEY=abcd1234
 ```
 
-We can use the `.env-example` file included in the project as a reference.
+We can use the `.env-example` file included in the project as a reference. These environment variables will be used to provision a new postgres Docker container, among other things.
 
-We can start a new postgres Docker container from within the project by running:
-
-```bash
-npm run db:init
-```
-
-This will spin up a new postgres Docker image with some pre-configured environment variables read from the `.env` file we added in the previous step.
-
-<a name="add-tables"></a>
-
-## Add Tables
-
-Now that our new postgres Docker container is up and running, let's add the tables we need to the database with the following command:
+Now we can proceed with setting up the database - let's run the following command to do this:
 
 ```bash
-npm run db:create-tables
+npm run db:setup
 ```
 
-This will create the following empty tables in the postgres database:
+This command does a few things:
+
+1. Spins up postgres Docker container
+2. Inserts tables into the postgres database
+3. Populates tables with some mock data.
+
+This will spin up a new postgres Docker container with some pre-configured environment variables read from the `.env` file we just added.
+
+The database should now include the following tables:
 
 - `users`
 - `books`
@@ -118,25 +116,11 @@ This will create the following empty tables in the postgres database:
 - `book_format`
 - `genre_type`
 
-<a name="populate-tables"></a>
-
-## Populate Tables
-
-This project includes mocking utilities to help populate the tables with some data. 
-
-These utilities can be viewed under `src/mock/dbData.ts`.
-
-Run the following command to populate the tables with some mock data:
-
-```bash
-npm run db:populate-tables
-```
-
-<a name="start-express-server"></a>
+We can verify this in a number of ways - personally I prefer to jump into a PostgreSQL GUI such as [https://www.pgadmin.org/](https://www.pgadmin.org/) and inspect the database.
 
 ### Start Express Server
 
-Now that the postgres database is running with populated tables, we can spin up the Express server provided by this project.
+Now that the postgres database is setup, we can spin up the Express server provided by this project.
 
 This can be done via the following command:
 
@@ -176,7 +160,7 @@ Once a JWT has been obtained via the `/login` endpoint, we can proceed to query 
 
 This project ships with GraphiQL allowing you to write and execute queries via a web interface.
 
-If the Express server is up, we can head over to `http://localhost:4000/graphql` to start querying the GraphQL API. 
+If the Express server is up, we can head over to `http://localhost:4000/graphql` to start querying the GraphQL API.
 
 To use the GraphiQL interface, we'll need to create a new cookie in the browser called `Authorization` with the value of the JWT we acquired by logging in.
 
