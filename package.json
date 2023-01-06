@@ -16,7 +16,7 @@
     "db:reset": "npm run db:teardown && npm run db:setup"
   },
   "author": "Tom Trinca",
-  "license": "",
+  "license": "ISC",
   "dependencies": {
     "@faker-js/faker": "^6.0.0-alpha.6",
     "@types/chance": "^1.1.3",
