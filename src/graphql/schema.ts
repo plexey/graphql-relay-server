@@ -178,6 +178,13 @@ const viewerType = new GraphQLObjectType({
       type: new GraphQLNonNull(GraphQLString),
       description: "Last name of current user",
     },
+    full_name: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: "Full name of current user",
+      resolve(obj) {
+        return obj.first_name + " " + obj.last_name;
+      },
+    },
     email: {
       type: new GraphQLNonNull(GraphQLString),
       description: "Email address of current user",
