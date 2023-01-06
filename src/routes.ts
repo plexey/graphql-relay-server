@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { generateSalt, getHashedPassword, generateJWT } from "./security";
 import { validateRegistrationParams, VALIDATION_ERROR } from "./validation";
-import { pool } from "./pool";
+import { pool } from "./sql/pool";
 
 import { insertUser } from "./sql/insert";
 

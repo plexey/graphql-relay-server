@@ -1,5 +1,5 @@
 import DataLoader from "dataloader";
-import { pool } from "./pool";
+import { pool } from "./sql/pool";
 
 const generateWhereInParams = (ids: string[]): string =>
   `(${ids.map((_value, index) => `$${index + 1}`).join(", ")})`;

@@ -1,5 +1,5 @@
 import { Author, Book, BookAuthor, BookGenre, Genre, User } from "./types";
-import { pool } from "../pool";
+import { pool } from "./pool";
 
 export const insertGenres = async (genres: Genre[]) => {
   const client = await pool.connect();
