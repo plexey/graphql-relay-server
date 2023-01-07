@@ -7,7 +7,7 @@ import { graphqlHTTP } from "express-graphql";
 
 import { login, register } from "./routes";
 import { authenticateJWT } from "./security";
-import { loaders } from "./dataLoaders";
+import { loaders } from "./dataloaders";
 import { schema } from "./graphql/schema";
 
 var app = express();
