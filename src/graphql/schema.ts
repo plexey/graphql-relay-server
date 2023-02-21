@@ -16,7 +16,7 @@ import {
   connectionFromArray,
 } from "graphql-relay";
 
-import { loaders } from "../dataLoaders";
+import { loaders } from "../dataloaders";
 import { fetchResource } from "../utils";
 
 import genresResolver from "./resolvers/genres";
