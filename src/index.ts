@@ -16,8 +16,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.text());
 app.use(cookieParser());
 
-app.get("/register", register);
-app.get("/login", login);
+app.post("/register", register);
+app.post("/login", login);
 
 app.post(
   "/graphql",
