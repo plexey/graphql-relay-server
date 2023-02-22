@@ -47,7 +47,9 @@ const decodeJWTPayload = (payload: string) => {
     throw new Error("Missing required env variable");
   }
 
-  const { encryptedData, iv } = JSON.parse(payload);
+  const buff = Buffer.from(payload, "base64");
+
+  const { encryptedData, iv } = JSON.parse(buff.toString("utf-8"));
 
   const decryptedPayload = decrypt(process.env.CIPHER_KEY, iv, encryptedData);
 
