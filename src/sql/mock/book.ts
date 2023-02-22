@@ -53,14 +53,14 @@ const t9 = () => [verb(), adverb()];
 const titleVariants = [t7, t8, t9];
 
 const generateBookTitle = (): string => {
-  const variant = faker.random.arrayElement(titleVariants);
+  const variant = faker.helpers.arrayElement(titleVariants);
   const wordArray = variant();
   const title = wordArray.join(" ");
   return title[0].toUpperCase() + title.slice(1);
 };
 
 const randomLanguage = () =>
-  faker.random.arrayElement([
+  faker.helpers.arrayElement([
     "english",
     "french",
     "italian",
@@ -73,10 +73,10 @@ const randomPublicationDate = () =>
   faker.date.between("1700-01-01", "2022-01-01");
 
 const bookFormat = (): BookFormat =>
-  faker.random.arrayElement(["paper-back", "hard-cover"]);
+  faker.helpers.arrayElement(["paper-back", "hard-cover"]);
 
 const randomBookEdition = () =>
-  faker.random.arrayElement([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  faker.helpers.arrayElement([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
 const generateBook = (): Book => {
   return {
