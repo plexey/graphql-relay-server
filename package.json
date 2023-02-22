@@ -11,9 +11,9 @@
     "db:remove": "./scripts/remove-db.sh",
     "db:create-tables": "ts-node src/sql/createTables",
     "db:populate-tables": "ts-node src/sql/populateTables.ts",
-    "db:setup": "npm run db:start && sleep 2 && npm run db:create-tables && npm run db:populate-tables",
-    "db:teardown": "npm run db:stop && npm run db:remove",
-    "db:reset": "npm run db:teardown && npm run db:setup"
+    "db:setup": "pnpm run db:start && sleep 2 && pnpm run db:create-tables && pnpm run db:populate-tables",
+    "db:teardown": "pnpm run db:stop && pnpm run db:remove",
+    "db:reset": "pnpm run db:teardown && pnpm run db:setup"
   },
   "author": "Tom Trinca",
   "license": "ISC",
