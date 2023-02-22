@@ -1,10 +1,25 @@
 import crypto from "crypto";
 import { Request, Response, NextFunction } from "express";
+import { decrypt, encrypt, generateInitializationVector } from "./cryptography";
 import { selectUser } from "./sql/select";
 
 const SECOND = 1000;
 const MINUTE = SECOND * 60;
 const HOUR = MINUTE * 60;
+
+type JTWPayload = {
+  iss: "athenaeum"; // issuer
+  iat: number; // issued at
+  exp: number; // expiry
+  // hst: string; // hostname
+  // ura: string; // User agent
+  // ipa: string; // IP Address
+  context: {
+    user: {
+      email: string;
+    };
+  };
+};
 
 const base64URLEncode = (str: string) => {
   // create a buffer
@@ -16,10 +31,27 @@ const base64URLEncode = (str: string) => {
   return base64;
 };
 
-const base64URLDecode = (base64URLstring: string) => {
-  const buff = Buffer.from(base64URLstring, "base64");
-  const str = buff.toString("utf-8");
-  return str;
+const encryptJWTPayload = (payload: JTWPayload) => {
+  if (!process.env.CIPHER_KEY) {
+    throw new Error("Missing required env variable");
+  }
+
+  const iv = generateInitializationVector();
+  const textToEncrypt = JSON.stringify(payload);
+
+  return encrypt(process.env.CIPHER_KEY, iv, textToEncrypt);
+};
+
+const decodeJWTPayload = (payload: string) => {
+  if (!process.env.CIPHER_KEY) {
+    throw new Error("Missing required env variable");
+  }
+
+  const { encryptedData, iv } = JSON.parse(payload);
+
+  const decryptedPayload = decrypt(process.env.CIPHER_KEY, iv, encryptedData);
+
+  return JSON.parse(decryptedPayload);
 };
 
 export const generateJWT = (email: string): string => {
@@ -30,7 +62,7 @@ export const generateJWT = (email: string): string => {
 
   const now = Date.now();
 
-  const payload = {
+  const payload: JTWPayload = {
     iss: "athenaeum", // issuer
     iat: now, // issued at
     exp: now + HOUR * 6, // expiry
@@ -42,9 +74,13 @@ export const generateJWT = (email: string): string => {
   };
 
   const encodedHeader = base64URLEncode(JSON.stringify(header));
-  const encodedPayload = base64URLEncode(JSON.stringify(payload));
+
+  const encodedPayload = base64URLEncode(
+    JSON.stringify(encryptJWTPayload(payload))
+  );
 
   const { HMAC_SECRET_KEY } = process.env;
+
   if (!HMAC_SECRET_KEY) {
     throw new Error("Missing required environment variable 'HMAC_SECRET_KEY'");
   }
@@ -74,8 +110,24 @@ export const verifyJWT = async (jwt: string) => {
     };
   }
 
-  const decodedPayload = base64URLDecode(payload);
-  const parsedPayload = JSON.parse(decodedPayload);
+  const { HMAC_SECRET_KEY } = process.env;
+  if (!HMAC_SECRET_KEY) {
+    throw new Error("Missing required environment variable 'HMAC_SECRET_KEY'");
+  }
+
+  const comparisonSignature = crypto
+    .createHmac("sha256", HMAC_SECRET_KEY)
+    .update(header + "." + payload)
+    .digest("base64url");
+
+  const comparisonJWT = header + "." + payload + "." + comparisonSignature;
+  if (comparisonJWT !== jwt) {
+    return {
+      verified: false,
+    };
+  }
+
+  const parsedPayload = decodeJWTPayload(payload);
 
   // check if correct issuer
   if (parsedPayload.iss !== "athenaeum") {
@@ -90,7 +142,7 @@ export const verifyJWT = async (jwt: string) => {
       verified: false,
     };
   }
-  
+
   // check if payload contains user email
   const providedEmail = parsedPayload?.context?.user?.email;
   if (!providedEmail) {
@@ -107,32 +159,13 @@ export const verifyJWT = async (jwt: string) => {
     };
   }
 
-
-  const { HMAC_SECRET_KEY } = process.env;
-  if (!HMAC_SECRET_KEY) {
-    throw new Error("Missing required environment variable 'HMAC_SECRET_KEY'");
-  }
-
-  const comparisonSignature = crypto
-    .createHmac("sha256", HMAC_SECRET_KEY)
-    .update(header + "." + payload)
-    .digest("base64url");
-
-  const comparisonJWT = header + "." + payload + "." + comparisonSignature;
-
-  if (comparisonJWT !== jwt) {
-    return {
-      verified: false,
-    };
-  }
-
   return {
     verified: true,
-    payload: parsedPayload,
+    payload: parsedPayload as JTWPayload,
   };
 };
 
-const extractJWT = (req: Request): string => {
+const extractJWTFromRequest = (req: Request): string => {
   const authHeader = req.headers?.authorization;
   const authCookie = req.cookies?.Authorization;
   const jwt = authHeader ? authHeader.split(" ")[1] : authCookie;
@@ -144,7 +177,7 @@ export const authenticateJWT = async (
   res: Response,
   next: NextFunction
 ) => {
-  const jwt = extractJWT(req);
+  const jwt = extractJWTFromRequest(req);
   const verificationResponse = await verifyJWT(jwt);
 
   const { verified } = verificationResponse;
@@ -155,6 +188,11 @@ export const authenticateJWT = async (
   // Store user email extracted from JWT
   // in res.locals for future use down the chain
   const { payload } = verificationResponse;
+
+  if (!payload) {
+    return res.sendStatus(403);
+  }
+
   res.locals.user_email = payload.context.user.email;
 
   next();
