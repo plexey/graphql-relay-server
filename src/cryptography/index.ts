@@ -33,7 +33,6 @@ export const encrypt = (
 };
 
 export const decrypt = (key: string, iv: string, encryptedData: string) => {
-  console.log({ encryptedData, key, iv });
   let encryptedText = Buffer.from(encryptedData, "hex");
 
   let decipher = crypto.createDecipheriv(
